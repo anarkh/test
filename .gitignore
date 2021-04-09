@@ -1,3 +1,7 @@
+./utils/filterResume.js
+./utils/output-excel.js
+
+
 # Logs
 logs
 *.log
