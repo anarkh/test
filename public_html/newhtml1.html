@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        进度：<div id="count"></div>
+        传值:<div id="sum"></div>
+        相差：<div id="differ"></div>
+        循环时间：<div id="differTime"></div>
+        总时间：<div id="time"></div>
+        <script>
+            function A(){
+                this.state = {
+                    progress:1.12
+                };
+            }
+            A.prototype.d = function(e){
+                var _this = this;
+                if(this.intval){
+                    clearInterval(this.intval);
+                    this.intval = null;
+                }
+                    document.getElementById('sum').innerHTML =e;
+                var differ = e - this.state.progress;
+                    document.getElementById('differ').innerHTML =differ;
+                var differTime = Math.round(10/differ) || 1;
+                    document.getElementById('differTime').innerHTML =differTime;
+                this.state.progress = parseFloat(this.state.progress);
+                this.intval = setInterval(()=>{
+                    if(this.state.progress > e){
+                        clearInterval(this.intval);
+                        this.intval = null;
+                    }
+                    this.state.progress = parseFloat(this.state.progress) + 0.03;
+                    this.state.progress = parseFloat(this.state.progress).toFixed(2);
+                    if(this.state.progress >= 100){
+                        this.state.progress = 100;
+                    }
+                    document.getElementById('count').innerHTML = this.state.progress;
+                },differTime);
+            };
+     function _pluseProgress(progress){
+        console.log(progress);
+        var FGameSizeAndroid = 200;
+        if(FGameSizeAndroid && FGameSizeAndroid > 0){
+            var differProgress = 0;
+            try{
+                differProgress = parseFloat((300/parseInt(FGameSizeAndroid)).toFixed(2));
+                console.log(typeof differProgress);
+            }catch(e){}
+        console.log(differProgress);
+            if(progress < 95){
+                progress = progress + differProgress;
+        console.log(progress);
+                progress = progress > 95 ? 95 : progress;
+        console.log(progress);
+            } else if(progress < 99){
+                differProgress = differProgress > 1 ? 1 : differProgress;
+                progress += differProgress;
+                progress = progress > 99.5 ? 99.5 : progress;
+            }
+        }
+        return progress;
+    };
+            var a = new A();
+            var c = 3.15;
+            var time = 0;
+            var d = setInterval(()=>{
+                var diff = Math.random().toFixed(2)*10;
+                diff = _pluseProgress(diff);
+                c = c + diff;
+                if(c > 100){
+                    c = 100;
+                    clearInterval(d);
+                }
+                a.d(c);
+                time += 1100;
+                document.getElementById('time').innerHTML = time;
+            },1100);
+        </script>
+    </body>
+</html>

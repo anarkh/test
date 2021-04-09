@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+Created by chenyangli on 2017-4-18.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" type="text/css" href="css.css">
+        <link rel="stylesheet" type="text/css" href="d.css">
+        <script src="jquery-3.2.1.min.js"></script>
+        <script src="d.js"></script>
+    </head>
+    <body>
+        <div id="page0" class="page" data-id="0">
+            <div class="danceWord-s1 fs65">WebViewBridge</div>
+        </div>
+        <div id="page1" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">public class WebViewBridgeManager extends ReactWebViewManager </div>
+            <img src="img/20170418181213.png"/>
+            <div class="danceWord-s6 lh30 tl fs20">javainterface实际就是一个普通的java类，里面是我们本地实现的java代码， 将object 传递给webview，并指定别名，</div>
+            <div class="danceWord-s6 lh30 tl fs20">这样js脚本就可以通过我们给的这个别名来调用我们的方法,在上面的代码中，this是实例化的对象，WebViewBridge是这个对象在js中的别名</div>
+        </div>
+        <div id="page2" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">java中注册发送js方法</div>
+            <img src="img/20170418181152.png"/>
+            <div class="danceWord-s4 mb20 fs20">通过注册sendToBridge方法来实现在代码中调用并传递给webview内容</div>
+        </div>
+        <div id="page3" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">rn中调用webview</div>
+            <img src="img/20170418182732.png"/>
+            <div class="danceWord-s5 mb20 fs20">通过注册injectedJavaScript方法来向webview页面注入js</div>
+            <div class="danceWord-s5 mb20 fs20">通过注册onBridgeMessage方法来实现向webview传递数值</div>
+        </div>
+        <div id="page4" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">注入IWanJSBridge方法</div>
+            <img src="img/20170418182845.png"/>
+            <div class="danceWord-s10 mb20 fs20">在页面里注入jsAPI，实现web页面调用app功能</div>
+        </div>
+        <div id="page5" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">回调API</div>
+            <img src="img/20170418184040.png"/>
+        </div>
+        <div id="page6" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">你造么，可以把浏览器当编辑器</div>
+            <div class="mb20 fs30">data:text/html,&lt;html contenteditable&gt;</div>
+            <img src="img/Image.gif"/>
+        </div>
+        <div id="page7" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">整个页面将变得可编辑</div>
+            <div class="danceWord-s2 mb20 fs30">document.body.contentEditable='true';</div>
+            <div class="hideimg"><img src="img/Image1.gif"/></div>
+        </div>
+        <div id="page8" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">实时编辑CSS</div>
+            <div class="danceWord-s2 mb20 fs30">contentEditable</div>
+            <img src="img/20170418201840.jpg"/>
+            <img src="img/Image3.gif"/>
+        </div>
+        <div id="page" class="page" data-id="0">
+            <div class="danceWord-s2 mb20 fs30">重写原生方法</div>
+            <div class="danceWord-s2 mb20 fs20">var _log = console.log;console.log = function() { _log.call(console, '%c' + [].slice.call(arguments).join(' '), 'color:transparent;text-shadow:0 0 2px rgba(0,0,0,.5);');};</div>
+            <div class="danceWord-s2 mb20 fs30">console.table</div>
+            <div class="danceWord-s2 mb20 fs20">Chrome专属:var data = [{'品名': 'a', '数量': 4}, {'品名': 'b', '数量': 3}];console.table(data);</div>
+            <div class="danceWord-s2 mb20 fs30">文字模糊</div>
+            <div class="danceWord-s2 mb20 fs20">color: transparent; text-shadow: #111 0 0 5px;</div>
+        </div>
+        <canvas id="canv" class="canvas" width="1920" height="973"></canvas>
+        <script>
+            var index = 0;
+            showPage(0);
+            $(window).on('keyup', (e)=>{
+                if(38 === e.keyCode){
+                    up();
+                }else if(40 === e.keyCode){
+                    down();
+                }else if(37 === e.keyCode){
+                    left();
+                }else if(39 === e.keyCode){
+                    right();
+                }
+            });
+            $(window).on('mousewheel', (e)=>{
+                if(e.originalEvent.deltaY > 0){
+                    down();
+                }else{
+                    up();
+                }
+            });
+            function up(){
+                index--;
+                showPage();
+                console.log('上');
+            }
+            function down(){
+                index++;
+                showPage();
+                console.log('下');
+            }
+            function left(){
+                console.log('左');
+            }
+            function right(){
+                console.log('右');
+            }
+            function showPage(){
+                if(index < 0){
+                    index = 0;
+                }else if(index > $('.page').length -1){
+                    index = $('.page').length -1;
+                }
+                $('.page').hide();
+                $('#page' + index).css('display', 'flex');
+                danceword.init($('#page' + index));
+            }
+        </script>
+        <script src="canvas1.js"></script>
+    </body>
+</html>

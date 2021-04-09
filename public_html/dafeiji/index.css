@@ -1,0 +1,62 @@
+* {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent
+}
+html, body{
+    height: 100%;
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    -webkit-user-select:none;
+    -webkit-tap-highlight-color: transparent;
+}
+body{
+    background-color: #ececec;
+    font-family: '微软雅黑';
+}
+a{
+    text-decoration: none;
+}
+.container{
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+.gamewrap{
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+canvas{
+    display: block;
+}
+.score{
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 18px;
+    padding-left: 5px;
+}
+.sbg{
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    background-image: url(./img/sbg.png);
+    background-size: 100%;
+}
+.sbg .startbtn{
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    font-size: 1.7em;
+    line-height: 2em;
+    padding: 0 1em;
+    color: #5a5a5a;
+    border-radius: 1em;
+    font-weight: bold;
+    border: 3px solid;
+    margin-left: -85px;
+}

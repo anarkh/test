@@ -1,0 +1,66 @@
+/*
+Created by chenyangli on 2017-4-18.
+*/
+/* 
+    Created on : 2017-4-18, 15:07:51
+    Author     : Administrator
+*/
+html{
+    height: 100%;
+}
+body{
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-image: -webkit-radial-gradient(ellipse farthest-corner at center top, #000d4d 0%, #000105 100%);
+    background-image: radial-gradient(ellipse farthest-corner at center top, #000d4d 0%, #000105 100%);
+    cursor: move;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+div{
+    color: white;
+}
+img{
+    margin-bottom: 20px;
+}
+.mb20{
+    margin-bottom: 20px;
+}
+.tl{
+    text-align: left;
+}
+.fs20{
+    font-size: 20px;
+}
+.fs65{
+    font-size: 65px;
+}
+.fs30{
+    font-size: 30px;
+}
+.lh30{
+    line-height: 30px;
+}
+.canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+.page{
+    display: none;
+    width: 100%;
+    height: 100%;
+    flex-direction:column;
+    justify-content: center;
+    align-items: center;
+}
+.hideimg{
+    overflow: hidden;
+}
+.hideimg img{
+        margin-top: -114px;
+}

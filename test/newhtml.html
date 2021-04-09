@@ -1,0 +1,192 @@
+<html>
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+        <meta name="format-detection" content="telephone=no"/>
+        <style>
+            body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, form, input, p, th, td {
+                font-family: Microsoft YaHei, "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
+            }
+            body{
+                background-color: #f0f0f0;
+                height: 60px;
+            }
+            .mainwrap{
+                margin: 0 3px;
+                border: 1px solid #d8d8d8;
+                padding: 9px 18px;
+                height: 40px;
+                border-radius: 3px;
+                overflow: hidden;
+                background-color: #ffffff;
+            }
+            .icon{
+                width: 40px;
+                height: 40px;
+                float: left;
+                background: url('http://iwan.qq.com/m/images/icon_bg.png') no-repeat center center;
+                border: 0;
+                outline: none;
+            }
+            .icon div{
+                width: 40px;
+                height: 40px;
+                background-size: 40px 40px;
+                background-image: url('http://iwan.qq.com/m/images/iwannewsicon.png');
+                background-color: #ffffff;
+            }
+            .contentwrap{
+                float: left;
+                padding-left: 19px;
+            }
+            .contentwrap .title{
+                font-size: 17px;
+                color: #141414;
+            }
+            .contentwrap .content{
+                display: none;
+                font-size: 12px;
+                color: #6b6b6b;
+            }
+            .contentwrap .content span{
+                color: #ff0000;
+                padding: 0 2px;
+            }
+            .right{
+                float: right;
+                width: 55px;
+                position: relative;
+            }
+            .right .new{
+                display: none;
+                height: 32px;
+                width: 64px;
+                margin: 4px -16px;
+                font-size: 18px;
+                color: #ffffff;
+                border-radius: 13px;
+                line-height: 32px;
+                text-align: center;
+                background-color: #ff5534;
+                transform: scale(0.5, 0.5);
+                -webkit-transform: scale(0.5, 0.5);
+                -moz-transform: scale(0.5, 0.5);
+                -o-transform: scale(0.5, 0.5);
+            }
+
+            .right .arrow {
+                border-top: 7px solid transparent;
+                border-bottom: 7px solid transparent;
+                border-left: 7px solid #c1c1c1;
+                right: 0px;
+                top: 13px;
+                position: absolute;
+            }
+            .right .arrow div{
+                border-top: 7px solid transparent;
+                border-bottom: 7px solid transparent;
+                border-left: 7px solid #ffffff;
+                position: absolute;
+                top: -7px;
+                right: 3px;
+            }
+            .night body{
+                background-color: #181a1d;
+            }
+            .night .mainwrap{
+                border-color: #23262a;
+                background-color: #212328;
+            }
+            .night .icon{
+                background: url('http://iwan.qq.com/m/images/iconbg46x46_n.png') no-repeat center center;
+            }
+            .night .icon div{
+                background-color: #212328;
+            }
+            .night .contentwrap .title{
+                color: #a5a7aa;
+            }
+            .night .right .arrow {
+                border-left-color: #6c6f72;
+            }
+            .night .right .arrow div{
+                border-left-color: #212328;
+            }
+        </style>
+        <script>
+            (function(){
+                var html=document.getElementsByTagName('html')[0];
+                if (/isnm=1/.test(location.search)) {
+                    html.className = "default";
+                } else if(/isnm=2/.test(document.cookie)||/isnm=2/.test(location.search)){
+                    html.className = "night";
+                }
+            })();
+       </script>
+    </head>
+    <body>
+        <div class="mainwrap">
+            <div class="icon"><div></div></div>
+            <div class="contentwrap">
+                <div class="title">新游上架</div>
+                <div id="content" class="content">新增<span id="giftnum">16</span>款豪华礼包</div>
+            </div>
+            <div class="right">
+                <div id="new" class="new">NEW</div>
+                <div class="arrow"><div></div></div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            (function(e,t,n){function a(){var e=u.match(/qqnews\/([\.\d]+)/i);return e&&e[1]?e[1]:"0.0.0"}function f(){return/android/i.test(u)?true:false}function l(e,t,n){function u(e){return(r?/^\d+[A-Za-z]*$/:/^\d+$/).test(e)}var r=n&&n.lexicographical,i=n&&n.zeroExtend,s=e.split("."),o=t.split(".");if(!s.every(u)||!o.every(u)){return NaN}if(i){while(s.length<o.length)s.push("0");while(o.length<s.length)o.push("0")}if(!r){s=s.map(Number);o=o.map(Number)}for(var a=0;a<s.length;++a){if(o.length==a){return 1}if(s[a]==o[a]){continue}else if(s[a]>o[a]){return 1}else{return-1}}if(s.length!=o.length){return-1}return 0}function c(e){var n=[];var r=e.shift();var i=e.length;for(var o=0;o<i;o++){var u=e[o];var a=typeof u;if(u==null){n[n.length]="string"}else{n[n.length]=a}if(a=="function"){var f=s.callBackQueue.length;s.callBackQueue[f]=u;e[o]=f}}return JSON.stringify({method:r,types:n,args:e,instanceName:t})}function h(){var e=o.call(arguments,0);var t=new Image;t.onload=function(){t=null};t.src="jsbridge://get_with_json_data?json="+encodeURIComponent(c(e))}function p(){var e=o.call(arguments,0);var t=prompt(c(e));var n=JSON.parse(t);if(n.code!=200){throw"call error, code:"+n.code+", message:"+n.result}return n.result}var r="1.0";var i=["onWebCellReady","onWebCellError","onWebCellUIChanged","queryData"];var s={};s.callBackQueue=[];var o=Array.prototype.slice;var u=navigator.userAgent;s.javascriptBridgeCallBack=function(){var e=o.call(arguments,0);var t=Nubmer(e.shift());s.callBackQueue[t].apply(this,e)};if(f()&&typeof e[t]=="undefined"&&!e[t]&&l(a(),"4.4.5")>0){i.forEach(function(e){s[e]=function(){switch(n){case 1:return h.apply(s,[e].concat(o.call(arguments,0)));default:return p.apply(s,[e].concat(o.call(arguments,0)))}}});e[t]=s}})(this,"JsInterface",1);
+            var TencentNews={};TencentNews.post=function(b,c,d,a){if(typeof window.JsInterface!="undefined"){window.JsInterface.queryData(b,c,d,a)}};var jsUtil={bind:function(b,a,c){if(b.addEventListener){b.addEventListener(a,c,false)}else{if(b.attachEvent){b.attachEvent("on"+a,c)}}}};var webCellManager={shortcutTimer:null,hasInited:false,init:function(){if(webCellManager.hasInited){return}jsUtil.bind(document,"DOMContentLoaded",function(){setTimeout(function(){var c=document.getElementsByTagName("img");var b=c.length;for(var a=0;a<b;a++){jsUtil.bind(c[a],"load",function(){webCellManager.onWebCellUIChanged()})}webCellManager.hasInited=true},1000)})},onWebCellReady:function(){webCellManager.init();if(typeof window.JsInterface!="undefined"){window.JsInterface.onWebCellReady()}},onWebCellError:function(){if(typeof window.JsInterface!="undefined"){window.JsInterface.onWebCellError()}},onWebCellUIChanged:function(){if(webCellManager.shortcutTimer){clearTimeout(webCellManager.shortcutTimer)}webCellManager.shortcutTimer=setTimeout(function(){webCellManager.shortcutTimer=null;if(typeof window.JsInterface!="undefined"){window.JsInterface.onWebCellUIChanged()}},1000)},nativeDidFinishLoad:function(){webCellManager.onWebCellReady()},channelDidAppear:function(){},channelDidDisappear:function(){},channelDidRefreshData:function(){},themeChanged:function(a){},loginStatueChanged:function(){}};
+        </script>
+
+        <script>
+
+
+
+                        var stockCell = {
+				webCellIsReady : false,
+				dataUrl : '/newsapp/getentranceinfo',
+				fetchData : function(callback) {
+					TencentNews.post(stockCell.dataUrl, null, callback, null);
+				},
+				refreshUI : function(data) {
+
+                                        var arr = data.split(',');
+                                        if(arr[0] && arr[1]){
+                                            var count = arr[0];
+                                            count = count < 0 ? 0 : (count > 99 ? 99 : count);
+                                            if(count){
+                                                document.getElementById('content').style.display = 'block';
+                                                document.getElementById('giftnum').innerText = count;
+                                            }
+                                            var version =  arr[1];
+                                            var data = localStorage.getItem("iwan_redversion_tn");
+                                            if (null === data ||  version != data) {
+                                                document.getElementById('new').style.display = 'block';
+                                            }
+                                        }
+
+					return true;
+				},
+				onDataReady : function(stockData) {
+					if (stockData.code != 0) {
+						stockCell.webCellIsReady = false;
+						webCellManager.onWebCellError();
+						return;
+					}
+					stockCell.validateUI(stockData.data, false);
+				},
+				updateData : function() {
+					stockCell.fetchData('stockCell.onDataReady');
+				}
+			};
+
+			//end native-web interactive protocol
+			stockCell.updateData();
+
+        </script>
+    </body>
+</html>
