@@ -32,7 +32,7 @@ class Promise{
       onFulfilled(this.value);
     }
     if(this.status === 'rejected' && onRejected){
-      onRejected(this.value);
+      onRejected(this.reason);
     }
   }
 }
