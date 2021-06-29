@@ -2,6 +2,7 @@
     "name": "chenyangli",
     "scripts": {
         "decroator": "npx babel-node ./utils/decorator.js",
+        "log-performance": "npx babel-node ./performance/test-log",
         "esmodule": "npx babel-node ./function/testb.js"
     },
     "dependencies": {

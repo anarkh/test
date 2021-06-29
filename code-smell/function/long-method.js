@@ -1,5 +1,6 @@
 /**
  * 重复的switch
+ * 优化手段：抽取方法+卫语句， 以管道取代循环， 提取函数
  */
 
 // bad
@@ -17,6 +18,9 @@ const longMethod = (avg1, avg2) => {
 };
 
 // good
+const doSomrthing = () => {
+    // doSomething
+}
 const longMethod = (avg1, avg2) => {
     // 卫语句
     if(avg2) {
@@ -24,5 +28,6 @@ const longMethod = (avg1, avg2) => {
     }
     // 以管道取代循环
     const result = avg1.filter(i => i === 'god');
-    // doSomething
+    // 提取函数
+    doSomrthing();
 }
