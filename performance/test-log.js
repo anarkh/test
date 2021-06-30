@@ -23,8 +23,13 @@ class Start {
         const test = new Test();
         test.debounce();
         test.throttle();
+        this.end();
+    }
+    end() {
+        // doSomething
     }
 }
   
 const start = new Start();
 start.start();
+start.end();
