@@ -14,6 +14,10 @@ const middlewares = [
   async (context, next) => {
     console.log(5);
     await next();
+    const d = {
+      c: 1,
+    } 
+    context.response(d);
   },
 ];
 
@@ -51,6 +55,10 @@ const test2 = async () => {
   const context = {
     a: 1,
   };
+  context.response = function(a) {
+    console.log(this);
+    this._response = a;
+  }
   const fn = composeMiddleware(middlewares);
   await fn(context, async () => {
     console.log(6);

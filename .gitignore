@@ -1,6 +1,7 @@
 ./utils/filterResume.js
 ./utils/output-excel.js
-
+package-lock.json
+yarn.lock
 
 # Logs
 logs
