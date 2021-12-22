@@ -9,6 +9,7 @@
     "dependencies": {
         "@vue/server-renderer": "^3.0.7",
         "axios": "^0.21.1",
+        "execa": "^6.0.0",
         "http-encoding": "^1.3.0",
         "http-proxy": "^1.18.1",
         "koa": "^2.13.1",
