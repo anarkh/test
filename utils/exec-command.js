@@ -3,7 +3,7 @@
  * @LastEditors: lichenyang.anarkh
  * @Description: 
  */
-import execa from 'execa';
+import { execa } from 'execa';
 import { exec } from 'child_process';
 
 export const run = (bin, arg, opts = {}) => execa(bin, arg, { stdio: 'inherit', ...opts });

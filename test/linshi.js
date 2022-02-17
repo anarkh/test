@@ -1,5 +1,5 @@
 import { URLSearchParams } from 'url';
-const count = 1000;
+const count = 100;
 const query = 'cl=3&tn=baidutop10&fr=top1000&wd=十九届六中全会决议中的10个明确&rsv_idx=2&rsv_dl=fyb_n_homepage&sa=fyb_n_homepage&hisfilter=1';
 
 const startTime = Date.now();
