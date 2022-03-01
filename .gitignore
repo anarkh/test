@@ -2,6 +2,7 @@
 ./utils/output-excel.js
 package-lock.json
 yarn.lock
+.vscode
 
 # Logs
 logs

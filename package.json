@@ -1,6 +1,5 @@
 {
     "name": "chenyangli",
-    "type": "module",
     "scripts": {
         "decroator": "npx babel-node ./utils/decorator.js",
         "log-performance": "npx babel-node ./performance/test-log",

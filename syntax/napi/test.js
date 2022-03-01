@@ -8,9 +8,4 @@
 const addon = require("./build/Release/addon");
 const echo1 = addon.echo("1111");
 console.log(echo1);
-try {
-    const echo2 = addon.echo();
-    console.log(echo2);
-} catch(error) {
-    console.log(error);
-}
+console.log(addon.add(1, 3));

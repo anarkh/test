@@ -5,33 +5,42 @@
  * source ../../../../git/emsdk/emsdk_env.sh
  * emcc test.c -O2 -s WASM=1 -s SIDE_MODULE=1 -o test.wasm
  */
-const util = require('util');
-const fs = require('fs');
-const source = fs.readFileSync('./test.wasm');
-const env = {
-    memoryBase: 0,
-    tableBase: 0,
-    memory: new WebAssembly.Memory({
-      initial: 256
-    }),
-    table: new WebAssembly.Table({
-      initial: 0,
-      element: 'anyfunc'
-    })
-  }
+// const util = require('util');
+// import fs from 'fs';
+// const source = fs.readFileSync('./test.wasm');
+// const env = {
+//     memoryBase: 0,
+//     tableBase: 0,
+//     memory: new WebAssembly.Memory({
+//       initial: 256
+//     }),
+//     table: new WebAssembly.Table({
+//       initial: 0,
+//       element: 'anyfunc'
+//     })
+//   }
 
-  const typedArray = new Uint8Array(source);
+//   const typedArray = new Uint8Array(source);
 
-WebAssembly.instantiate(typedArray, {
-  env: env
-}).then(result => {
-  console.log(util.inspect(result, true, 0));
-  console.log(result.instance.exports._add(9, 9));
-}).catch(e => {
-  // error caught
-  console.log(e);
-});
+// WebAssembly.instantiate(typedArray, {
+//   env: env
+// }).then(result => {
+//   // console.log(util.inspect(result, true, 0));
+//   console.log(result.instance.exports._add(9, 9));
+// }).catch(e => {
+//   // error caught
+//   console.log(e);
+// });
 
+
+const _loadWasm = require('./add.js');     
+const main = async () => {     
+    const Module = await _loadWasm();
+    console.log(Module._add(1,2));
+    const concat = Module.cwrap('addString', 'string',['string','string']);
+    console.log(concat("hello", "word"));
+}
+main();
 // const wasm = await WebAssembly.compile(
 //     await readFile(new URL('./add.wasm', import.meta.url))
 //   );
