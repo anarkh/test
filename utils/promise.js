@@ -1,38 +1,42 @@
-class Promise{
-  constructor(fun) {
-    this.status = 'pending';
-    this.value = undefined;
-    this.reason = undefined;
-    this.callback = [];
-    fun(this.resolve.bind(this), this.reject.bind(this));
+class Promise {
+  constructor (fun) {
+    this.status = 'pending'
+    this.value = undefined
+    this.reason = undefined
+    this.callback = []
+    fun(this.resolve.bind(this), this.reject.bind(this))
   }
-  resolve(value){
-    this.value = value;
-    this.status = 'fulfilled';
+
+  resolve (value) {
+    this.value = value
+    this.status = 'fulfilled'
     this.callback.forEach((callback) => {
-      this.handle(callback);
-    });
+      this.handle(callback)
+    })
   }
-  reject(reason){
-    this.reason = reason;
-    this.status = 'rejected';
+
+  reject (reason) {
+    this.reason = reason
+    this.status = 'rejected'
     this.callback.forEach((callback) => {
-      this.handle(callback);
-    });
+      this.handle(callback)
+    })
   }
-  then(onFulfilled, onRejected){
+
+  then (onFulfilled, onRejected) {
     this.callback.push({
       onFulfilled,
-      onRejected,
-    });
+      onRejected
+    })
   }
-  handle(callback) {
-    const { onFulfilled, onRejected } = callback;
-    if(this.status === 'fulfilled' && onFulfilled){
-      onFulfilled(this.value);
+
+  handle (callback) {
+    const { onFulfilled, onRejected } = callback
+    if (this.status === 'fulfilled' && onFulfilled) {
+      onFulfilled(this.value)
     }
-    if(this.status === 'rejected' && onRejected){
-      onRejected(this.reason);
+    if (this.status === 'rejected' && onRejected) {
+      onRejected(this.reason)
     }
   }
 }
@@ -40,6 +44,6 @@ class Promise{
 const promiseTest = new Promise((resolve, reject) => {
   setTimeout(() => {
     reject(2)
-  }, 500);
+  }, 500)
 })
-promiseTest.then(console.log);
+promiseTest.then(console.log)

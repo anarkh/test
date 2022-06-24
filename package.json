@@ -3,17 +3,21 @@
     "scripts": {
         "decroator": "npx babel-node ./utils/decorator.js",
         "log-performance": "npx babel-node ./performance/test-log",
+        "lint": "eslint --ext .js,.vue --fix .",
         "esmodule": "npx babel-node ./function/testb.js"
     },
     "dependencies": {
         "@vue/server-renderer": "^3.0.7",
         "axios": "^0.21.1",
+        "eslint-config-airbnb": "^19.0.4",
+        "eslint-config-airbnb-base": "^15.0.0",
         "execa": "^6.0.0",
         "http-encoding": "^1.3.0",
         "http-proxy": "^1.18.1",
         "koa": "^2.13.1",
         "koa-router": "^10.1.1",
         "lz4": "^0.6.5",
+        "md5": "^2.3.0",
         "node-xlsx": "^0.16.1",
         "snappy": "^6.3.5",
         "vue": "^3.0.7",
@@ -26,6 +30,12 @@
         "@babel/node": "^7.13.10",
         "@babel/plugin-proposal-decorators": "^7.13.5",
         "@babel/preset-env": "^7.13.10",
+        "eslint": "^7.32.0",
+        "eslint-config-standard": "^16.0.3",
+        "eslint-config-tencent": "^0.12.0",
+        "eslint-plugin-import": "^2.25.4",
+        "eslint-plugin-node": "^11.1.0",
+        "eslint-plugin-promise": "^5.2.0",
         "prime-generator": "^1.0.0"
     }
 }

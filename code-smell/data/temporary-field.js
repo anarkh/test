@@ -4,12 +4,12 @@
  */
 
 // bad
-const temp = avg2 - avg1;
-if(temp > 0) {
-    // doSomething
+const temp = avg2 - avg1
+if (temp > 0) {
+  // doSomething
 }
 
 // good
-if(avg2 - avg1 > 0) {
-    // doSomething
+if (avg2 - avg1 > 0) {
+  // doSomething
 }

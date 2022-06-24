@@ -16,24 +16,22 @@ waterfall([
   function (arg1, callback) {
     // arg1 now equals 'three'
     callback(null, 'done')
-  },
+  }
 ], (err, result) => {
   // result now equals 'done'
 })
 
-function waterfall(middlewares){
-  if(!Array.isArray(middlewares)){
-    return;
+function waterfall (middlewares) {
+  if (!Array.isArray(middlewares)) {
+
   }
 }
 
-
-function compose(arr){
-  let index = -1;
-  const length = arr.length;
+function compose (arr) {
+  let index = -1
+  const length = arr.length
   const dispatch = (i) => {
-    index = i;
-    const fn = arr[i];
-
+    index = i
+    const fn = arr[i]
   }
 }

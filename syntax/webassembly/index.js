@@ -1,7 +1,7 @@
 /*
  * @Author: lichenyang.anarkh
  * @LastEditors: lichenyang.anarkh
- * @Description: 
+ * @Description:
  * source ../../../../git/emsdk/emsdk_env.sh
  * emcc test.c -O2 -s WASM=1 -s SIDE_MODULE=1 -o test.wasm
  */
@@ -32,15 +32,14 @@
 //   console.log(e);
 // });
 
-
-const _loadWasm = require('./add.js');     
-const main = async () => {     
-    const Module = await _loadWasm();
-    console.log(Module._add(1,2));
-    const concat = Module.cwrap('addString', 'string',['string','string']);
-    console.log(concat("hello", "word"));
+const _loadWasm = require('./add.js')
+const main = async () => {
+  const Module = await _loadWasm()
+  console.log(Module._add(1, 2))
+  const concat = Module.cwrap('addString', 'string', ['string', 'string'])
+  console.log(concat('hello', 'word'))
 }
-main();
+main()
 // const wasm = await WebAssembly.compile(
 //     await readFile(new URL('./add.wasm', import.meta.url))
 //   );

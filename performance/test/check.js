@@ -24,7 +24,9 @@ class Check {
 
       return /^function\sdefault_\d+\s*\(/.test(str)
     }
-
+    // 判断是否是箭头函数
+    if (/^\(?function\s*\(/.test(str)) return false
+    
     return false
   }
 }

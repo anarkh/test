@@ -1,7 +1,7 @@
-let t1 = new Date().getTime();
-let t2 = t1;
-let i = 0, count = 10000000, interval = 0;
- 
+const t1 = new Date().getTime()
+const t2 = t1
+const i = 0; const count = 10000000; const interval = 0
+
 // t1 = new Date().getTime();
 // for(i = 0; i < count; i++)
 // {
@@ -28,15 +28,15 @@ let i = 0, count = 10000000, interval = 0;
 //         return diff[0] * 1000 + diff[1] / 1e6;
 //     };
 // }
-function duration() {
-    const startTime = process.uptime();
-    return function seed() {
-        const diff = process.uptime();
-        const duration = diff - startTime;
-        return (duration * 1000).toFixed(6);
-    };
+function duration () {
+  const startTime = process.uptime()
+  return function seed () {
+    const diff = process.uptime()
+    const duration = diff - startTime
+    return (duration * 1000).toFixed(6)
+  }
 }
-const start = duration();
+const start = duration()
 setTimeout(() => {
-    console.log(parseFloat(start()));
-}, 100);
+  console.log(parseFloat(start()))
+}, 100)

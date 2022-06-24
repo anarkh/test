@@ -1,19 +1,19 @@
-const { Duplex } = require('stream');
+const { Duplex } = require('stream')
 
 const inoutStream = new Duplex({
-  write(chunk, encoding, callback) {
-    console.log(chunk.toString());
-    callback();
+  write (chunk, encoding, callback) {
+    console.log(chunk.toString())
+    callback()
   },
 
-  read(size) {
-    this.push(String.fromCharCode(this.currentCharCode++));
+  read (size) {
+    this.push(String.fromCharCode(this.currentCharCode++))
     if (this.currentCharCode > 90) {
-      this.push(null);
+      this.push(null)
     }
   }
-});
+})
 
-inoutStream.currentCharCode = 65;
+inoutStream.currentCharCode = 65
 
-process.stdin.pipe(inoutStream).pipe(process.stdout);
+process.stdin.pipe(inoutStream).pipe(process.stdout)

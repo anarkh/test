@@ -1,17 +1,17 @@
-function closure() {
-  let sum = 0;
-  const temp = function (n){
+function closure () {
+  let sum = 0
+  const temp = function (n) {
     if (n) {
-      sum += n;
-      return temp;
+      sum += n
+      return temp
     } else {
-      return sum;
+      return sum
     }
   }
-  return temp;
+  return temp
 }
 
-const cs = closure();
-const sum = cs(1)(2)(3)(4)();
+const cs = closure()
+const sum = cs(1)(2)(3)(4)()
 
-console.log(sum);
+console.log(sum)
