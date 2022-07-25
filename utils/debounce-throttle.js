@@ -1,4 +1,4 @@
-function debounce (fn, time) {
+export function debounce (fn, time) {
   let timer = null
   return (...args) => {
     if (timer) {
@@ -11,7 +11,7 @@ function debounce (fn, time) {
   }
 }
 
-function throttle (fn, time) {
+export function throttle (fn, time) {
   let flag = false
   return (...args) => {
     if (flag) return

@@ -62,6 +62,20 @@ const promiseList = [
     return 3
   }
 ]
-concurrentPromise(promiseList, (res) => {
-  console.log(res)
-}).then((res) => { console.log(res) })
+// concurrentPromise(promiseList, (res) => {
+//   console.log(res)
+// }).then((res) => { console.log(res) })
+
+// Promise.all(promiseList).then(values => {
+//   console.log(values);
+// }, reason => {
+//   console.log(reason)
+// });
+const pall = async () => {
+  const start = Date.now();
+  await Promise.all(promiseList.map(async (user) => {
+    await user();
+  }));
+  console.log(start-Date.now());
+}
+pall();
