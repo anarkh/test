@@ -24,6 +24,8 @@ export function throttle (fn, time) {
 }
 
 function test (i) {
+  if (i === 0) return false;
+  if (i === 2) return 1;
   console.log(i)
 }
 

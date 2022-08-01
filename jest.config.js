@@ -15,6 +15,7 @@
   // 统计覆盖率的分母来源，设置为源代码路径
   collectCoverageFrom: [
     'utils/**/*.js',
+    'function/**/*.js',
   ],
   // 覆盖率报告的输出目录
   coverageDirectory: 'coverage',

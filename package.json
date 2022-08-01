@@ -6,7 +6,7 @@
         "lint": "eslint --ext .js,.vue --fix .",
         "esmodule": "npx babel-node ./function/testb.js",
         "ts": "ts-node ./jest/readYml.ts",
-        "test": "jest --coverage --forceExit"
+        "test": "jest --coverage --forceExit --json --outputFile=coverage.json"
     },
     "dependencies": {
         "@vue/server-renderer": "^3.0.7",
@@ -17,6 +17,7 @@
         "http-encoding": "^1.3.0",
         "http-proxy": "^1.18.1",
         "http-proxy-middleware": "^2.0.6",
+        "istanbul-lib-coverage": "^3.2.0",
         "koa": "^2.13.1",
         "koa-router": "^10.1.1",
         "lz4": "^0.6.5",

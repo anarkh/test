@@ -1,0 +1,3 @@
+utils:
+  debounce-throttle: 90
+function: 50
