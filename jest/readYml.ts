@@ -1,10 +1,29 @@
-import { parse, stringify } from 'yaml';
+import { parse } from 'yaml';
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { debounce } from '@utils/debounce-throttle';
+import path from 'path';
 
-export const readYml = (filePath: string) => {
-  const yml = readFileSync(resolve(__dirname, filePath), 'utf8');
-  return parse(yml);
+/**
+ * @param filePath 5
+ * @param options 6
+ * @returns 7
+ */
+export const readYml = (filePath: string, options: number): any => {
+  if (filePath !== '' && ( options === 1 || options === 2 )) {
+    const yml = readFileSync(path.resolve(__dirname, filePath), 'utf8');
+    return parse(yml);
+  }
+  // if (((A-6)*2+1)%2) {
+  //   const yml = readFileSync(path.resolve(__dirname, filePath), 'utf8');
+  //   return parse(yml);
+  // }
+
+  return options;
 }
+const test = (a: number): number => {
+  debounce(readYml, 300);
+  return a + 1;
+};
+const test2 = 1;
 
-console.log(readYml('../jest-coverage.yml'));
+export {test, test2};

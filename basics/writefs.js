@@ -13,7 +13,7 @@
 //   console.log(TESTS[j].name + ':', (Date.now() - startTime), 'ms.');
 // }
 
-import { readFileSync } from 'fs'
+import { readFileSync, createWriteStream } from 'fs'
 
 'use strict'
 
@@ -49,17 +49,17 @@ function adjustOffset (offset, length) {
   }
 }
 
-class Buffer extends Uint8Array {
-  customSubarray (begin, end) {
-    const srcLength = this.length
-    const beginIndex = adjustOffset(begin, srcLength)
-    const endIndex = end !== undefined ? adjustOffset(end, srcLength) : srcLength
-    const newLength = endIndex > beginIndex ? endIndex - beginIndex : 0
-    const beginByteOffset = this.byteOffset + beginIndex * this.BYTES_PER_ELEMENT
-    return new (getSpeciesConstructor(this, this.constructor))(this.buffer, beginByteOffset, newLength)
-  }
-}
-Buffer.prototype[Symbol.species] = Buffer
+// class Buffer extends Uint8Array {
+//   customSubarray (begin, end) {
+//     const srcLength = this.length
+//     const beginIndex = adjustOffset(begin, srcLength)
+//     const endIndex = end !== undefined ? adjustOffset(end, srcLength) : srcLength
+//     const newLength = endIndex > beginIndex ? endIndex - beginIndex : 0
+//     const beginByteOffset = this.byteOffset + beginIndex * this.BYTES_PER_ELEMENT
+//     return new (getSpeciesConstructor(this, this.constructor))(this.buffer, beginByteOffset, newLength)
+//   }
+// }
+// Buffer.prototype[Symbol.species] = Buffer
 
 function testCustomSubarray (o) {
   let result = 0
@@ -81,8 +81,8 @@ const TESTS = [
   testCustomSubarray,
   testSubarray
 ]
-
-const array = new Buffer(0x68, 0x65, 0x6c, 0x6c, 0x6f)
-const ws = createWriteStream('./test.txt')
-ws.write('111111111')
+const source = '';
+const array = Buffer.from(source, 'hex');
+const ws = createWriteStream('./test.js')
+ws.write(array)
 ws.end()
