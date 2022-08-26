@@ -1,6 +1,10 @@
+/* eslint-disable import/no-unresolved */
 /**
  * @description Jest单元测试配置文件
  */
+ const { pathsToModuleNameMapper } = require('ts-jest');
+ const { compilerOptions } = require('./tsconfig.base.json');
+
  module.exports = {
   // 项目根目录
   rootDir: __dirname,
@@ -23,6 +27,10 @@
   coveragePathIgnorePatterns: ['/node_modules/'],
   // 覆盖率报告的格式
   coverageReporters: ['text', 'lcov', 'clover', 'json'],
+  // 测试代码引用源代码的路径解析
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
+    prefix: '<rootDir>/',
+  }),
   transform: {
     '^.+\\.[tj]sx?$': 'ts-jest', // modified tsx -> [tj]sx
   },

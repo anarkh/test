@@ -11,9 +11,10 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "allowJs": true,
+    "types": ["jest", "node"],
     "paths": {
       "@utils/*": ["utils/*"]
-    },
+    }
   },
   "include": [
     "**/*.ts"

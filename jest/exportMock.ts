@@ -1,8 +1,8 @@
 import { FileAttributes } from './fileAttributes';
-import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind } from './utils';
-import { FunctionNode, ExpressionList } from './types';
+import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue } from './utils';
+import { FunctionNode, ExpressionList, TestStatement, DescribeStatement, Case } from './types';
 import ts from 'typescript';
-import { asterisk, mathCalculate, minus, percent, plus, slash } from './operator';
+import { ampersandAmpersand, asterisk, barBar, equalsEqualsEquals, exclamationEquals, mathCalculate, minus, percent, plus, slash } from './operator';
 
 /**
  * 获取import的mock文件，并生成代码字符串
@@ -10,11 +10,9 @@ import { asterisk, mathCalculate, minus, percent, plus, slash } from './operator
 export class ExportMock {
   fileAttributes: FileAttributes;
   node: FunctionNode;
-  jsDocTags: ts.JSDocTag[];
   constructor(options) {
     this.fileAttributes = options.fileAttributes;
     this.node = options.node;
-    this.jsDocTags = options.jsDocTags;
   }
 
   beforeAll() {
@@ -33,10 +31,47 @@ export class ExportMock {
     const code = 'afterAll(() => {});';
     return code;
   }
+  /**
+   * 根据注释生成测试用例
+   */
+  jSDocTest(describeStatement: DescribeStatement): void {
+    const hasParametersDoc = this.node.parameters.every(parameter => {
+      return parameter.tag.length > 0;
+    });
+    if (hasParametersDoc && this.node.tag) {
+      const testName = this.node.parameters.map(parameter => {
+        return `${parameter.name}:${parameter.tag[0].text}`;
+      }).join(' ');
+      const expect = `expect(result).toEqual(${this.node.tag.text});`;
+      const body = `const result = ${this.node.name}(${this.node.parameters.map(parameter => {
+        return tagKindToString(parameter.tag[0].typeFlag, parameter.tag[0].text);
+      }).join(', ')});`;
 
-  test() {
-    const code = `test('default', () => {});`;
-    return code;
+      const testStatement = {
+        doc: '',
+        name: `注释生成测试用例: ${testName}`,
+        body,
+        expect: 'result',
+        assert: this.node.tag.text,
+      }
+      describeStatement.test.push(testStatement);
+    }
+  }
+  test(testInfo: Case[]): TestStatement {
+    const name = testInfo.map(element => {
+      return `${element.text}:${element.value}`;
+    }).join(' ');
+    const body = `const result = ${this.node.name}(${testInfo.map(element => {
+      return tagKindToString(element.kind, element.value, true);
+    }).join(', ')});`;
+
+    return {
+      doc: '',
+      name,
+      body,
+      expect: 'result',
+      assert: '\'\'',
+    }
   }
   // kind = 221
   // 解析条件语句二叉树结构为中缀表达式
@@ -116,7 +151,12 @@ export class ExportMock {
         output.push(element);
       }
     });
-    return output.concat(temp.reverse());
+
+    const result = output.concat(temp.reverse());
+    result.forEach(element => {
+      element.text = parseValue(element.kind, element.text, true);
+    });
+    return result;
   }
   formart(expression: ExpressionList) {
     if (expression.kind === ts.SyntaxKind.NumericLiteral) { /* SyntaxKind.NumericLiteral */
@@ -144,25 +184,17 @@ export class ExportMock {
     } else if (operator.kind === ts.SyntaxKind.PercentToken) {
       return percent(variable, constant);
     } else if (operator.kind === ts.SyntaxKind.AmpersandAmpersandToken) {
-      return {
-        kind: 79,
-        text: variable.text && constant.text,
-      };
+      return ampersandAmpersand(variable, constant);
     } else if (operator.kind === ts.SyntaxKind.BarBarToken) {
-      return {
-        kind: 79,
-        text: variable.text || constant.text,
-      };
+      return barBar(variable, constant);
     } else if (operator.kind === ts.SyntaxKind.EqualsEqualsToken) {
-      return {
-        kind: 79,
-        text: variable.text === constant.text,
-      };
+      return equalsEqualsEquals(variable, constant);
     } else if (operator.kind === ts.SyntaxKind.ExclamationEqualsToken) {
-      return {
-        kind: 79,
-        text: variable.text !== constant.text,
-      };
+      return exclamationEquals(variable, constant);
+    } else if (operator.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) {
+      return equalsEqualsEquals(variable, constant);
+    } else if (operator.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken) {
+      return exclamationEquals(variable, constant);
     } else if (operator.kind === ts.SyntaxKind.LessThanToken) {
       return {
         kind: 79,
@@ -219,59 +251,58 @@ export class ExportMock {
     });
 
   }
-  calculateExpression (expressionList: ExpressionList[]) {
-    const identifier = [];
-    expressionList.forEach(expression => {
-      if (expression.weight < 11) {
-        this.calculateIdentifier(identifier, 0);
+calculateExpression (expressionList: ExpressionList[]): ExpressionList {
+  const identifier = [];
+  expressionList.forEach(expression => {
+    if (isBinaryExpressionOperatorToken(expression.kind)) {
+      const right = identifier.pop();
+      const left = identifier.pop();
+      if (this.isVariable(left)) {
+        const result = this.calculate(left, right, expression);
+        identifier.push(result);
+      } else if (this.isVariable(right)) {
+        const result = this.calculate(right, left, expression);
+        identifier.push(result);
       }
-      if (isBinaryExpressionOperatorToken(expression.kind)) {
-        const right = identifier.pop();
-        const left = identifier.pop();
-        if (this.isVariable(left)) {
-          const result = this.calculate(left, right, expression);
-          identifier.push(result);
-        } else if (this.isVariable(right)) {
-          const result = this.calculate(right, left, expression);
-          identifier.push(result);
-        }
-      } else {
-        identifier.push(expression);
-      }
-    });
-    return identifier[0];
-  }
-  ifStatement(statement: ts.IfStatement) {
+    } else {
+      identifier.push(expression);
+    }
+  });
+  return identifier[0];
+}
+  ifStatement(statement: ts.IfStatement, describeStatement: DescribeStatement): void {
     if (ts.isBinaryExpression(statement.expression)) {
       const expressionList = [];
-      // @ts-ignore
       this.binaryExpression(statement.expression, expressionList);
       const transformE = this.transformExpression(expressionList);
-      logger(transformE);    
-      // const result = this.calculateExpression(transformE);
-      // logger(statement.expression.left);
-      // logger(statement.expression.operatorToken);
-      // logger(statement.expression.right);
+      logger(transformE);
+      if(transformE.every(item => item.weight > 10)) {
+        logger('暂不支持计算表达式');
+        return;
+      }
+      const result = this.calculateExpression(transformE);
+      describeStatement.test.push(this.test(result.trueCase));
+      if (statement.elseStatement && ts.isIfStatement(statement.elseStatement)) {
+        this.ifStatement(statement.elseStatement, describeStatement);
+      } else {
+        describeStatement.test.push(this.test(result.falseCase));
+      }
     }
-    
   }
-
+ 
   produce() {
-    logger(this.node);
-    // logger(options.body.statements);
+    // logger(this.node);
+    const describeStatement = {
+      name: this.node.name,
+      test: [],
+    };
+    this.jSDocTest(describeStatement);
+    // console.log(this.node.body.statements);
     this.node.body.statements.forEach((statement)=> {
       if (ts.isIfStatement(statement)) {
-        this.ifStatement(statement);
-        // logger(statement);
+        this.ifStatement(statement, describeStatement);
       }
-    })
-    const describe = [`describe('${this.node.name}', () => {`];
-    describe.push(this.beforeAll());
-    describe.push(this.afterAll());
-    describe.push(this.beforeEach());
-    describe.push(this.afterEach());
-    describe.push(this.test());
-    describe.push('});')
-    return describe.join('\n');
+    });
+    return describeStatement;
   }
 }

@@ -4,9 +4,9 @@ import { debounce } from '@utils/debounce-throttle';
 import path from 'path';
 
 /**
- * @param filePath 5
- * @param options 6
- * @returns 7
+ * @param {string} filePath ./test.yml
+ * @param options 2
+ * @returns {number} 7
  */
 export const readYml = (filePath: string, options: number): any => {
   if (filePath !== '' && ( options === 1 || options === 2 )) {
@@ -20,10 +20,17 @@ export const readYml = (filePath: string, options: number): any => {
 
   return options;
 }
-const test = (a: number): number => {
-  debounce(readYml, 300);
+function test1(a: number): number{
+  if (a === 5) {
+    debounce(readYml, 300);
+  } else if (a === 6){
+    return 7;
+  } else {
+    a = a + 3;
+  }
+  
   return a + 1;
 };
 const test2 = 1;
 
-export {test, test2};
+export {test1, test2};

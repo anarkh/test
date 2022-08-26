@@ -1,6 +1,7 @@
 import ts from "typescript";
 import { CreateFile } from './createFile';
 import { FileAttributes } from './fileAttributes';
+import { FunctionNode, Tag } from "./types";
 import { logger } from './utils';
 
 // const resultFile = ts.createSourceFile("someFileName.ts", readFileSync(file).toString(), ts.ScriptTarget.Latest, /*setParentNodes*/ false, ts.ScriptKind.TS);
@@ -9,6 +10,7 @@ class AutoJest {
   sourceFile: ts.SourceFile;
   typeChecker: ts.TypeChecker;
   testFile: CreateFile;
+  exportList: FunctionNode[];
   constructor(options) {
     const filePath = options.fileAttributes.filePath;
     const program = ts.createProgram({
@@ -18,6 +20,7 @@ class AutoJest {
     this.typeChecker = program.getTypeChecker();
     this.sourceFile = program.getSourceFile(filePath);
     this.testFile = new CreateFile(options);
+    this.exportList = []
     this.init();
   }
 
@@ -31,6 +34,10 @@ class AutoJest {
       } else if (ts.isExportDeclaration(node)) {
         this.exportDeclaration(node);
       }
+    });
+    this.testFile.createFunctionImport(this.exportList);
+    this.exportList.forEach((item) => {
+      this.testFile.createDescribe(item);
     });
     this.testFile.createFile();
   }
@@ -72,67 +79,117 @@ class AutoJest {
       });
     }
   }
+  // 获取参数注释值
+  getJSDocParameterTags(node: ts.ParameterDeclaration): Tag[] {
+    const jSDocParameterTags = ts.getJSDocParameterTags(node);
+    const tags = jSDocParameterTags.map((tag) => {
+      let tagType = 'any';
+      let tagTypeFlag = 1;
+      if (tag.typeExpression) {
+        const tagTypeNode = this.typeChecker.getTypeAtLocation(tag.typeExpression.type);
+        tagType = this.typeChecker.typeToString(tagTypeNode);
+        tagTypeFlag = tagTypeNode.getFlags();
+      }
+
+      return {
+        text: tag.comment.toString(),
+        type: tagType,
+        typeFlag: tagTypeFlag,
+      };
+    });
+
+    return tags;
+  }
+
+  // 获取return注释值
+  getJSDocReturnTag(node: ts.Node): Tag | undefined {
+    const tag = ts.getJSDocReturnTag(node);
+    if (tag?.typeExpression) {
+      const tagTypeNode = this.typeChecker.getTypeAtLocation(tag.typeExpression.type);
+      const tagType = this.typeChecker.typeToString(tagTypeNode);
+      const tagTypeFlag = tagTypeNode.getFlags();
+
+      return {
+        text: tag.comment.toString(),
+        type: tagType,
+        typeFlag: tagTypeFlag,
+      };
+    }
+
+    return undefined;
+  }
   // 分析导出方法
-  analyzeFunction(node: ts.VariableDeclaration) {
-    if (ts.isArrowFunction(node.initializer)) {
+  analyzeFunction(node: ts.VariableDeclaration | ts.FunctionDeclaration): void {
+    if (ts.isVariableDeclaration(node) && ts.isArrowFunction(node.initializer)) {
       const initializer = node.initializer as ts.ArrowFunction;
       const returnType = this.typeChecker.getTypeFromTypeNode(initializer.type);
-      const parameters = initializer.parameters.map((element) => {
-        if (ts.isParameter(element)) {
-          const name = element.name.getText();
-          const type = this.typeChecker.typeToString(
-            this.typeChecker.getTypeAtLocation(element)
-          );
-          const typeFlag = this.typeChecker
-            .getTypeAtLocation(element)
-            .getFlags();
-          let defaultValue: any;
-          if (element.initializer) {
-            defaultValue = element.initializer.getText();
-            if (ts.isAsExpression(element.initializer)) {
-              defaultValue = element.initializer.getText();
-            } else if (ts.isArrayLiteralExpression(element.initializer)) {
-              defaultValue = element.initializer.elements.map((value) => {
-                if (ts.isNumericLiteral(value)) {
-                  return parseInt(value.getText());
-                }
-                return value.getText();
-              });
-            }
-          }
-          return {
-            name,
-            type,
-            typeFlag,
-            defaultValue,
-          };
-        }
-      });
-      return {
+      const parameters = this.parseParameters(initializer.parameters);
+      this.exportList.push({
         name: node.name.getText(),
         parameters,
         type: this.typeChecker.typeToString(returnType),
         typeFlag: returnType.getFlags(),
-        body: initializer.body,
-      }
+        body: initializer.body as ts.Block,
+        tag: this.getJSDocReturnTag(node),
+      });
+    } else if (ts.isFunctionDeclaration(node)){
+      const returnType = this.typeChecker.getTypeFromTypeNode(node.type);
+      const parameters = this.parseParameters(node.parameters);
+      this.exportList.push({
+        name: node.name.getText(),
+        parameters,
+        type: this.typeChecker.typeToString(returnType),
+        typeFlag: returnType.getFlags(),
+        body: node.body as ts.Block,
+        tag: this.getJSDocReturnTag(node),
+      });
     }
-
   }
+  parseParameters(parameters: ts.NodeArray<ts.ParameterDeclaration>) {
+    return parameters.map((element) => {
+      if (ts.isParameter(element)) {
+        const name = element.name.getText();
+        const typeNode = this.typeChecker.getTypeAtLocation(element);
+        const type = this.typeChecker.typeToString(typeNode);
+        const typeFlag = typeNode.getFlags();
+        let defaultValue: any;
+        if (element.initializer) {
+          defaultValue = element.initializer.getText();
+          if (ts.isAsExpression(element.initializer)) {
+            defaultValue = element.initializer.getText();
+          } else if (ts.isArrayLiteralExpression(element.initializer)) {
+            defaultValue = element.initializer.elements.map((value) => {
+              if (ts.isNumericLiteral(value)) {
+                return parseInt(value.getText());
+              }
+              return value.getText();
+            });
+          }
+        }
+
+        return {
+          name,
+          type,
+          tag: this.getJSDocParameterTags(element),
+          typeFlag,
+          defaultValue,
+        };
+      }
+    });
+  }
+
   /**
    * 分析变量定义
    * @param node
    * @return
    */
   variableStatement(node: ts.VariableStatement) {
-    // @ts-ignore
-    console.log('---------------------', ts.getJSDocAugmentsTag(node));
     const modifiers = node.modifiers;
     // isExportModifier
     if (modifiers?.[0]?.kind === 93) {
       const declarations = node.declarationList
         .declarations[0] as ts.VariableDeclaration;
-      const functionNode = this.analyzeFunction(declarations);
-      this.testFile.createDescribe(functionNode);
+      this.analyzeFunction(declarations);
     }
   }
 
@@ -151,21 +208,16 @@ class AutoJest {
               }
             }
           }
+        } else if (ts.isFunctionDeclaration(node)) {
+          const nodeName = node.name.getText();
+          if (functionName === nodeName) {
+            this.analyzeFunction(node);
+          }
         }
       });
     })
   }
 }
-
-// console.log((sourceFile as any).imports[0]);
-// importDeclaration((sourceFile as any).imports[0]);
-// const symbol = typeChecker.getSymbolAtLocation(sourceFile);
-// console.log(symbol.exports.get('readYml'));
-// symbol.exports.forEach((value, key) => {
-//   console.log('---------------------------');
-//   console.log(key);
-//   console.log(value.declarations[0]);
-// })
 
 const main = () => {
   const fileAttributes = new FileAttributes({

@@ -44,14 +44,13 @@
         "@types/node": "^18.0.3",
         "eslint": "^7.32.0",
         "eslint-config-standard": "^16.0.3",
-        "eslint-config-tencent": "^0.12.0",
         "eslint-plugin-import": "^2.25.4",
         "eslint-plugin-jsx-a11y": "^6.6.1",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^5.2.0",
         "jest": "^28.1.2",
         "prime-generator": "^1.0.0",
-        "ts-jest": "^28.0.5",
+        "ts-jest": "^28.0.8",
         "ts-node": "^10.8.2",
         "typescript": "^4.7.4"
     }

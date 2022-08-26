@@ -1,10 +1,12 @@
+import { ExpressionList, TagKind } from "./types";
+
 export const logger = (...args: any) => {
   if (process.env.node_env === 'development') {
     console.log(...args);
   }
 }
 
-export function isBinaryExpressionOperatorToken(token) {
+export function isBinaryExpressionOperatorToken(token: number) {
     switch (token) {
         case 41 /* SyntaxKind.AsteriskToken */:
         case 43 /* SyntaxKind.SlashToken */:
@@ -119,4 +121,59 @@ export const OperatorKind = {
   102: 'InstanceOf',
   104: 'null',
   110: 'true',
+}
+
+const typeFlagsMap = new Map([
+  [ 4, (value: string) => `'${value}'` ],
+  [ 8, (value: string) => value ],
+]);
+const syntaxKindMap = new Map<number, any>([
+  [ 8, (value: string) => value ],
+  [ 10, (value: string) => `'${value}'` ],
+]);
+export const tagKindToString = (kind: number, value: string, isSyntaxKind = false) => {
+  const result = isSyntaxKind ? syntaxKindMap.get(kind) : typeFlagsMap.get(kind);
+  if (result) {
+    return result(value);
+  }
+
+  return value;
+};
+
+const parseTypeFlags = new Map<number, any>([
+  [ 4, (value: string) => value.replace(/^["|'](.*)["|']$/g,"$1") ],
+  [ 8, (value: string) => Number(value) ],
+]);
+const parseSyntaxKind = new Map<number, any>([
+  [ 8, (value: string) => Number(value) ],
+  [ 10, (value: string) => value.replace(/^["|'](.*)["|']$/g,"$1") ],
+]);
+export const parseValue = (kind: number, value: string, isSyntaxKind = false) => {
+  const result = isSyntaxKind ? parseSyntaxKind.get(kind) : parseTypeFlags.get(kind);
+  if (result) {
+    return result(value);
+  }
+
+  return value;
+};
+export const concatExpression = (variable: ExpressionList[], constant: ExpressionList[], validate = false) => {
+  const variableList = [].concat(variable);
+  constant.forEach(element => {
+    let repeat = false;
+    for (let i = 0; i < variableList.length; i++) {
+      if (variableList[i].text === element.text) {
+        if (validate && variableList[i].value !== element.value) {
+          throw Error(`条件判断异常，${element.text}无法满足逻辑表达式`);
+        }
+        variableList[i] = element;
+        repeat = true;
+        break;
+      }
+    }
+    if (!repeat) {
+      variableList.push(element);
+    }
+  });
+
+  return variableList;
 }

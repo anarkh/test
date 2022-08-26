@@ -16,6 +16,8 @@ export class FileAttributes {
   tsConfigPath: string;
   parsedCommandLine: ts.ParsedCommandLine;
   matchPath: MatchPath;
+  testRelativePath: string;
+  jestConfigPath: string;
 
   constructor(options) {
     const filePath = resolve(options.baseDir, options.filePath);
@@ -31,6 +33,7 @@ export class FileAttributes {
     this.testFileName = `${fileObj.name}.spec${fileObj.ext}`;
     this.testFilePath = resolve(options.baseDir, 'test', relativePath, this.testFileName);
     this.testFileDir = resolve(options.baseDir, 'test', relativePath);
+    this.testRelativePath = relative(this.testFileDir, this.filePath);
 
     this.mockDir = resolve(options.baseDir, 'test/mock');
 
@@ -38,6 +41,7 @@ export class FileAttributes {
     this.parsedCommandLine = ts.parseJsonConfigFileContent(config.config, ts.sys, this.baseDir);
 
     this.matchPath = createMatchPath(this.baseDir, this.parsedCommandLine.options.paths);
+    this.getJestConfiguration();
   }
 
   /**
@@ -70,5 +74,12 @@ export class FileAttributes {
         filePath,
       };
     }
+  }
+  /**
+   * 获取jest配置
+   */
+  getJestConfiguration(){
+    this.jestConfigPath = resolve(this.baseDir, 'jest.config.js');
+    // this.jestConfig = require(jestConfigPath);
   }
 }

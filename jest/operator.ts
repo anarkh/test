@@ -1,4 +1,5 @@
 import { ExpressionList } from './types';
+import { concatExpression, parseValue } from './utils';
 
 export const mathCalculate = (left: ExpressionList, right: ExpressionList, operate: ExpressionList, isReverse = false): ExpressionList => {
   const leftNumber = Number(left.text);
@@ -61,12 +62,12 @@ export const plus = (variable: ExpressionList, constant: ExpressionList): Expres
       text: 'result',
       kind: -1,
       trueCase: [{
-        text: variable.text,
-        value: value + 1,
+        text: `${value + 1}`,
+        kind: variable.kind,
       }],
       falseCase: [{
-        text: variable.text,
-        value: - value,
+        text: `${- value}`,
+        kind: variable.kind,
       }],
     }
   }
@@ -86,12 +87,12 @@ export const minus = (variable: ExpressionList, constant: ExpressionList): Expre
       text: 'result',
       kind: -1,
       trueCase: [{
-        text: variable.text,
-        value: value + 1,
+        text: `${value + 1}`,
+        kind: variable.kind,
       }],
       falseCase: [{
-        text: variable.text,
-        value: value,
+        text: `${value}`,
+        kind: variable.kind,
       }],
     }
   }
@@ -121,13 +122,68 @@ export const percent = (variable: ExpressionList, constant: ExpressionList): Exp
       text: 'result',
       kind: -1,
       trueCase: [{
-        text: variable.text,
-        value: constant.text + remainderPlus,
+        text: constant.text + remainderPlus,
+        kind: variable.kind,
       }],
       falseCase: [{
-        text: variable.text,
-        value: constant.text,
+        text: constant.text,
+        kind: variable.kind,
       }],
     }
+  }
+}
+export const ampersandAmpersand = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
+  const trueCase = concatExpression(variable.trueCase, constant.trueCase, true);
+  const falseCase = concatExpression(variable.trueCase, constant.falseCase, true);
+
+  return {
+    text: variable.text,
+    kind: variable.kind,
+    trueCase,
+    falseCase,
+  }
+}
+export const barBar = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
+  const trueCase = concatExpression(variable.falseCase, constant.trueCase);
+  const falseCase = concatExpression(variable.falseCase, constant.falseCase);
+  return {
+    text: variable.text,
+    kind: variable.kind,
+    trueCase,
+    falseCase,
+  }
+}
+export const exclamationEquals = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
+  const value = parseValue(constant.kind, constant.text);
+  return {
+    text: variable.text,
+    kind: variable.kind,
+    trueCase: [{
+      text: variable.text,
+      kind: constant.kind,
+      value: value + 1,
+    }],
+    falseCase: [{
+      text: variable.text,
+      kind: constant.kind,
+      value: value,
+    }],
+  }
+}
+export const equalsEqualsEquals = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
+  const value = parseValue(constant.kind, constant.text);
+  return {
+    text: variable.text,
+    kind: variable.kind,
+    trueCase: [{
+      text: variable.text,
+      kind: constant.kind,
+      value: value,
+    }],
+    falseCase: [{
+      text: variable.text,
+      kind: constant.kind,
+      value: value + 1,
+    }],
   }
 }
