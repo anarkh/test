@@ -80,26 +80,26 @@ class AutoJest {
     }
   }
   // 获取参数注释值
-  getJSDocParameterTags(node: ts.ParameterDeclaration): Tag[] {
-    const jSDocParameterTags = ts.getJSDocParameterTags(node);
-    const tags = jSDocParameterTags.map((tag) => {
-      let tagType = 'any';
-      let tagTypeFlag = 1;
-      if (tag.typeExpression) {
-        const tagTypeNode = this.typeChecker.getTypeAtLocation(tag.typeExpression.type);
-        tagType = this.typeChecker.typeToString(tagTypeNode);
-        tagTypeFlag = tagTypeNode.getFlags();
-      }
+getJSDocParameterTags(node: ts.ParameterDeclaration): Tag[] {
+  const jSDocParameterTags = ts.getJSDocParameterTags(node);
+  const tags = jSDocParameterTags.map((tag) => {
+    let tagType = 'any';
+    let tagTypeFlag = 1;
+    if (tag.typeExpression) {
+      const tagTypeNode = this.typeChecker.getTypeAtLocation(tag.typeExpression.type);
+      tagType = this.typeChecker.typeToString(tagTypeNode);
+      tagTypeFlag = tagTypeNode.getFlags();
+    }
 
-      return {
-        text: tag.comment.toString(),
-        type: tagType,
-        typeFlag: tagTypeFlag,
-      };
-    });
+    return {
+      text: tag.comment.toString(),
+      type: tagType,
+      typeFlag: tagTypeFlag,
+    };
+  });
 
-    return tags;
-  }
+  return tags;
+}
 
   // 获取return注释值
   getJSDocReturnTag(node: ts.Node): Tag | undefined {

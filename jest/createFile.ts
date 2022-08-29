@@ -123,6 +123,7 @@ createFile(): void {
     silent: true,
     json: true,
     reporters: [this.jestReportPath],
+    outputFile: './testCache.json',
     _: [this.testFilePath],
     $0: ''
   }, [this.fileAttributes.jestConfigPath]).then((res) => {
