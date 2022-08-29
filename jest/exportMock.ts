@@ -1,5 +1,5 @@
 import { FileAttributes } from './fileAttributes';
-import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue } from './utils';
+import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue, mockValue } from './utils';
 import { FunctionNode, ExpressionList, TestStatement, DescribeStatement, Case } from './types';
 import ts from 'typescript';
 import { ampersandAmpersand, asterisk, barBar, equalsEqualsEquals, exclamationEquals, mathCalculate, minus, percent, plus, slash } from './operator';
@@ -42,7 +42,6 @@ export class ExportMock {
       const testName = this.node.parameters.map(parameter => {
         return `${parameter.name}:${parameter.tag[0].text}`;
       }).join(' ');
-      const expect = `expect(result).toEqual(${this.node.tag.text});`;
       const body = `const result = ${this.node.name}(${this.node.parameters.map(parameter => {
         return tagKindToString(parameter.tag[0].typeFlag, parameter.tag[0].text);
       }).join(', ')});`;
@@ -53,6 +52,39 @@ export class ExportMock {
         body,
         expect: 'result',
         assert: this.node.tag.text,
+      }
+      describeStatement.test.push(testStatement);
+    }
+  }
+  /**
+   * 根据默认值生成测试用例
+   */
+  defaultValueTest(describeStatement: DescribeStatement): void {
+    const hasDefaultValue = this.node.parameters.some(parameter => {
+      return parameter.defaultValue !== undefined;
+    });
+    if (hasDefaultValue) {
+      const parameters = this.node.parameters.map(parameter => {
+        const value = parameter.defaultValue ?? mockValue(parameter.typeFlag);
+        return {
+          name: parameter.name,
+          typeFlag: parameter.typeFlag,
+          value,
+        };
+      });
+      const testName = parameters.map(parameter => {
+        return `${parameter.name}:${parameter.value}`;
+      }).join(' ');
+      const body = `const result = ${this.node.name}(${parameters.map(parameter => {
+        return tagKindToString(parameter.typeFlag, parameter.value);
+      }).join(', ')});`;
+
+      const testStatement = {
+        doc: '',
+        name: `方法默认值生成测试用例: ${testName}`,
+        body,
+        expect: 'result',
+        assert: '\'\'',
       }
       describeStatement.test.push(testStatement);
     }
@@ -275,7 +307,7 @@ calculateExpression (expressionList: ExpressionList[]): ExpressionList {
       const expressionList = [];
       this.binaryExpression(statement.expression, expressionList);
       const transformE = this.transformExpression(expressionList);
-      logger(transformE);
+      // logger(transformE);
       if(transformE.every(item => item.weight > 10)) {
         logger('暂不支持计算表达式');
         return;
@@ -291,12 +323,13 @@ calculateExpression (expressionList: ExpressionList[]): ExpressionList {
   }
  
   produce() {
-    // logger(this.node);
+    logger(this.node);
     const describeStatement = {
       name: this.node.name,
       test: [],
     };
     this.jSDocTest(describeStatement);
+    this.defaultValueTest(describeStatement);
     // console.log(this.node.body.statements);
     this.node.body.statements.forEach((statement)=> {
       if (ts.isIfStatement(statement)) {

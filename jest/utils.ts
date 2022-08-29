@@ -131,6 +131,7 @@ const syntaxKindMap = new Map<number, any>([
   [ 8, (value: string) => value ],
   [ 10, (value: string) => `'${value}'` ],
 ]);
+// 根据type的类型转换值为在字符串中的显示值
 export const tagKindToString = (kind: number, value: string, isSyntaxKind = false) => {
   const result = isSyntaxKind ? syntaxKindMap.get(kind) : typeFlagsMap.get(kind);
   if (result) {
@@ -148,6 +149,7 @@ const parseSyntaxKind = new Map<number, any>([
   [ 8, (value: string) => Number(value) ],
   [ 10, (value: string) => value.replace(/^["|'](.*)["|']$/g,"$1") ],
 ]);
+// 根据type的类型转换值为正常类型值
 export const parseValue = (kind: number, value: string, isSyntaxKind = false) => {
   const result = isSyntaxKind ? parseSyntaxKind.get(kind) : parseTypeFlags.get(kind);
   if (result) {
@@ -176,4 +178,12 @@ export const concatExpression = (variable: ExpressionList[], constant: Expressio
   });
 
   return variableList;
+}
+const typeFlags = new Map<number, any>([
+  [ 4, 'mock' ],
+  [ 8, 1 ],
+]);
+// 返回mock值
+export const mockValue = (kind: number) => {
+  return typeFlags.get(kind);
 }

@@ -8,7 +8,7 @@ import path from 'path';
  * @param options 2
  * @returns {number} 7
  */
-export const readYml = (filePath: string, options: number): any => {
+export const readYml = (filePath: string, options = 5): any => {
   if (filePath !== '' && ( options === 1 || options === 2 )) {
     const yml = readFileSync(path.resolve(__dirname, filePath), 'utf8');
     return parse(yml);
