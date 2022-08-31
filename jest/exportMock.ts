@@ -65,7 +65,8 @@ export class ExportMock {
     });
     if (hasDefaultValue) {
       const parameters = this.node.parameters.map(parameter => {
-        const value = parameter.defaultValue ?? mockValue(parameter.typeFlag);
+        const value = parseValue(parameter.typeFlag, parameter.defaultValue) ?? mockValue(parameter.typeFlag);
+
         return {
           name: parameter.name,
           typeFlag: parameter.typeFlag,

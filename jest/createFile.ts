@@ -1,10 +1,10 @@
-import { createWriteStream } from 'fs';
+import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { ExportMock } from './exportMock';
 import { FileAttributes } from './fileAttributes';
 import { ImportMock } from './importMock';
 import prettier from 'prettier';
 import { FunctionNode, TestStatement, DescribeStatement } from './types';
-import { parse, resolve } from 'path';
+import { parse, resolve, dirname } from 'path';
 import { runCLI } from 'jest';
 
 /**
@@ -20,7 +20,9 @@ export class CreateFile {
   importMock: ImportMock;
   exportMock: ExportMock;
   jestReportPath: string;
+  testFileDir: string;
   constructor(options) {
+    this.testFileDir = options.fileAttributes.testFileDir;
     this.testFilePath = options.fileAttributes.testFilePath;
     this.fileAttributes = options.fileAttributes;
     this.imports = [];
@@ -52,6 +54,9 @@ export class CreateFile {
 
 
   writeDescribe(describeStatement: DescribeStatement): string {
+    if (describeStatement.test.length === 0) {
+      return '';
+    }
     const testString = describeStatement.test.map((test) => {
       return this.writeTest(test);
     });
@@ -110,36 +115,42 @@ export class CreateFile {
 
   }
 
-createFile(): void {
-  const ws = createWriteStream(this.testFilePath);
-  const describeString = this.describe.map((describeStatement) => {
-    return this.writeDescribe(describeStatement);
-  });
-  const code = [].concat(this.imports, describeString);
-  ws.write(code.join(''));
-  ws.end();
-
-  runCLI({
-    silent: true,
-    json: true,
-    reporters: [this.jestReportPath],
-    outputFile: './testCache.json',
-    _: [this.testFilePath],
-    $0: ''
-  }, [this.fileAttributes.jestConfigPath]).then((res) => {
-    res.results.testResults[0].testResults.forEach((test, index) => {
-      if (test.status === 'failed') {
-        this.resetAssert(test, index);
-      }
-    });
-    const ws = createWriteStream(this.testFilePath);
+  createFile(): void {
     const describeString = this.describe.map((describeStatement) => {
       return this.writeDescribe(describeStatement);
     });
     const code = [].concat(this.imports, describeString);
-    const prettierCode = this.prettier(code.join(''));
-    ws.write(prettierCode);
-    ws.end();
-  });
+    makeDirs(this.testFileDir);
+    writeFileSync(this.testFilePath, code.join(''));
+
+    runCLI({
+      silent: true,
+      json: true,
+      reporters: [this.jestReportPath],
+      outputFile: './testCache.json',
+      _: [this.testFilePath],
+      $0: ''
+    }, [this.fileAttributes.jestConfigPath]).then((res) => {
+      res.results.testResults[0].testResults.forEach((test, index) => {
+        if (test.status === 'failed') {
+          this.resetAssert(test, index);
+        }
+      });
+      const describeString = this.describe.map((describeStatement) => {
+        return this.writeDescribe(describeStatement);
+      });
+      const code = [].concat(this.imports, describeString);
+      const prettierCode = this.prettier(code.join(''));
+      writeFileSync(this.testFilePath, prettierCode);
+    });
+  }
 }
-}
+const makeDirs = path => {
+  if (existsSync(path)) {
+      return true;
+  }
+  if (makeDirs(dirname(path))) {
+      mkdirSync(path);
+      return true;
+  }
+};

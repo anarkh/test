@@ -26,8 +26,8 @@ describe('readYml', () => {
     expect(result).toEqual(7);
   });
 
-  test('方法默认值生成测试用例: filePath:mock options:5', () => {
-    const result = readYml('mock', 5);
+  test('方法默认值生成测试用例: filePath: options:5', () => {
+    const result = readYml('', 5);
     expect(result).toEqual(5);
   });
   // {"errno":-2,"syscall":"open","code":"ENOENT","path":"/Users/bytedance/github/test/jest/1"}

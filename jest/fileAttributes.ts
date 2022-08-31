@@ -39,8 +39,9 @@ export class FileAttributes {
 
     const config = ts.readConfigFile(this.tsConfigPath, ts.sys.readFile);
     this.parsedCommandLine = ts.parseJsonConfigFileContent(config.config, ts.sys, this.baseDir);
-
-    this.matchPath = createMatchPath(this.baseDir, this.parsedCommandLine.options.paths);
+    if (this.parsedCommandLine.options.paths) {
+      this.matchPath = createMatchPath(this.baseDir, this.parsedCommandLine.options.paths);
+    }
     this.getJestConfiguration();
   }
 
@@ -50,7 +51,7 @@ export class FileAttributes {
    * global: 使用包引用
    */
   getMockFilePath(name: string) {
-    const matchPath = this.matchPath(name);
+    const matchPath = this.matchPath?.(name);
     if (matchPath !== undefined) {
       const relativePath = relative(this.baseDir, matchPath);
       const filePath = resolve(this.mockDir, `${relativePath}.mock.ts`);
