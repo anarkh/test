@@ -18,7 +18,7 @@ jest.mock('@utils/debounce-throttle', () => {
     }),
   };
 });
-import { readYml, test1 } from '../../jest/readYml';
+import { readYml } from '../../jest/readYml';
 describe('readYml', () => {
   // {"errno":-2,"syscall":"open","code":"ENOENT","path":"/Users/bytedance/github/test/jest/test.yml"}
   test('注释生成测试用例: filePath:./test.yml options:2', () => {
@@ -30,30 +30,14 @@ describe('readYml', () => {
     const result = readYml('', 5);
     expect(result).toEqual(5);
   });
-  // {"errno":-2,"syscall":"open","code":"ENOENT","path":"/Users/bytedance/github/test/jest/1"}
-  test('filePath:1 options:2', () => {
-    const result = readYml('1', 2);
+  // {"errno":-2,"syscall":"open","code":"ENOENT","path":"/Users/bytedance/github/test/jest/test.yml"}
+  test('filePath:./test.yml options:7', () => {
+    const result = readYml('./test.yml', 7);
     expect(result).toEqual('');
   });
 
-  test('filePath:1 options:3', () => {
-    const result = readYml('1', 3);
-    expect(result).toEqual(3);
-  });
-});
-describe('test1', () => {
-  test('a:5', () => {
-    const result = test1(5);
-    expect(result).toEqual(6);
-  });
-
-  test('a:6', () => {
-    const result = test1(6);
+  test('filePath:mock../test.yml options:7', () => {
+    const result = readYml('mock../test.yml', 7);
     expect(result).toEqual(7);
-  });
-
-  test('a:7', () => {
-    const result = test1(7);
-    expect(result).toEqual(11);
   });
 });

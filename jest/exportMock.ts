@@ -2,7 +2,7 @@ import { FileAttributes } from './fileAttributes';
 import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue, mockValue } from './utils';
 import { FunctionNode, ExpressionList, TestStatement, DescribeStatement, Case } from './types';
 import ts from 'typescript';
-import { ampersandAmpersand, asterisk, barBar, equalsEqualsEquals, exclamationEquals, mathCalculate, minus, percent, plus, slash } from './operator';
+import { ampersandAmpersand, asterisk, barBar, equalsEqualsEquals, exclamationEquals, includes, mathCalculate, minus, percent, plus, slash } from './operator';
 
 /**
  * 获取import的mock文件，并生成代码字符串
@@ -91,11 +91,26 @@ export class ExportMock {
     }
   }
   test(testInfo: Case[]): TestStatement {
-    const name = testInfo.map(element => {
-      return `${element.text}:${element.value}`;
+    const parameters = this.node.parameters.map(parameter => {
+      const testValue = testInfo.find(item => parameter.name === item.text);
+      if (testValue) {
+        return {
+          name: parameter.name,
+          typeFlag: testValue.kind,
+          value: testValue.value,
+        };
+      }
+      return {
+        name: parameter.name,
+        typeFlag: parameter.typeFlag,
+        value: mockValue(parameter.typeFlag),
+      };
+    });
+    const name = parameters.map(parameter => {
+      return `${parameter.name}:${parameter.value}`;
     }).join(' ');
-    const body = `const result = ${this.node.name}(${testInfo.map(element => {
-      return tagKindToString(element.kind, element.value, true);
+    const body = `const result = ${this.node.name}(${parameters.map(parameter => {
+      return tagKindToString(parameter.typeFlag, parameter.value);
     }).join(', ')});`;
 
     return {
@@ -105,6 +120,23 @@ export class ExportMock {
       expect: 'result',
       assert: '\'\'',
     }
+  }
+  // 生成计算表达式语句单元
+  getExpressionList(node: ts.Expression): ExpressionList {
+    const element: ExpressionList = {
+      text: node.getText(),
+      kind: node.kind,
+    }
+    if (ts.isTypeOfExpression(node)) {
+      element.expression = node.expression;
+    }
+    if (ts.isCallExpression(node)) {
+      element.expression = node.expression;
+      if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.getText() === 'includes') {
+        element.text = node.arguments[0].getText();
+      }
+    }
+    return element;
   }
   // kind = 221
   // 解析条件语句二叉树结构为中缀表达式
@@ -125,10 +157,7 @@ export class ExportMock {
         weight: operatorWeight(212),
       });
     }  else {
-      list.push({
-        text: expression.left.getText(),
-        kind: expression.left.kind,
-      });
+      list.push(this.getExpressionList(expression.left));
     }
     // isBinaryExpressionOperatorToken
     list.push({
@@ -152,10 +181,7 @@ export class ExportMock {
         weight: operatorWeight(212),
       });
     } else {
-      list.push({
-        text: expression.right.getText(),
-        kind: expression.right.kind,
-      });
+      list.push(this.getExpressionList(expression.right));
     }
   }
   // 条件语句转化为后缀表达式
@@ -199,13 +225,23 @@ export class ExportMock {
   }
 
   isVariable (expression: ExpressionList) {
-    if (expression.kind === ts.SyntaxKind.Identifier || expression.kind === -1) {
+    if ([ts.SyntaxKind.Identifier, ts.SyntaxKind.TypeOfExpression, -1].includes(expression.kind)) {
       return true;
     }
 
     return false;
   }
+
+  calculateInclude(expressionList: ExpressionList) {
+    if (expressionList.expression && ts.isPropertyAccessExpression(expressionList.expression) && expressionList.expression.name.getText() === 'includes') {
+      return includes(expressionList);
+    }
+
+    return expressionList;
+  }
   calculate(variable: ExpressionList, constant: ExpressionList, operator: ExpressionList) {
+    variable = this.calculateInclude(variable);
+    constant = this.calculateInclude(constant);
     if (operator.kind === ts.SyntaxKind.PlusToken) {
       return plus(variable, constant);
     } else if (operator.kind === ts.SyntaxKind.MinusToken) {
@@ -248,7 +284,6 @@ export class ExportMock {
         if (right === undefined) {
           right = identifier.pop();
         }
-        
       } else {
         identifier.push(expression);
       }
@@ -284,31 +319,30 @@ export class ExportMock {
     });
 
   }
-calculateExpression (expressionList: ExpressionList[]): ExpressionList {
-  const identifier = [];
-  expressionList.forEach(expression => {
-    if (isBinaryExpressionOperatorToken(expression.kind)) {
-      const right = identifier.pop();
-      const left = identifier.pop();
-      if (this.isVariable(left)) {
-        const result = this.calculate(left, right, expression);
-        identifier.push(result);
-      } else if (this.isVariable(right)) {
-        const result = this.calculate(right, left, expression);
-        identifier.push(result);
+  calculateExpression (expressionList: ExpressionList[]): ExpressionList {
+    const identifier = [];
+    expressionList.forEach(expression => {
+      if (isBinaryExpressionOperatorToken(expression.kind)) {
+        const right = identifier.pop();
+        const left = identifier.pop();
+        if (this.isVariable(left)) {
+          const result = this.calculate(left, right, expression);
+          identifier.push(result);
+        } else if (this.isVariable(right)) {
+          const result = this.calculate(right, left, expression);
+          identifier.push(result);
+        }
+      } else {
+        identifier.push(expression);
       }
-    } else {
-      identifier.push(expression);
-    }
-  });
-  return identifier[0];
-}
+    });
+    return identifier[0];
+  }
   ifStatement(statement: ts.IfStatement, describeStatement: DescribeStatement): void {
     if (ts.isBinaryExpression(statement.expression)) {
       const expressionList = [];
       this.binaryExpression(statement.expression, expressionList);
       const transformE = this.transformExpression(expressionList);
-      // logger(transformE);
       if(transformE.every(item => item.weight > 10)) {
         logger('暂不支持计算表达式');
         return;
@@ -318,6 +352,14 @@ calculateExpression (expressionList: ExpressionList[]): ExpressionList {
       if (statement.elseStatement && ts.isIfStatement(statement.elseStatement)) {
         this.ifStatement(statement.elseStatement, describeStatement);
       } else {
+        describeStatement.test.push(this.test(result.falseCase));
+      }
+    } else if (ts.isCallExpression(statement.expression)) {
+      const expression = statement.expression;
+      const expressionList = this.getExpressionList(expression);
+      if (ts.isPropertyAccessExpression(expression.expression) && expression.expression.name.getText() === 'includes') {
+        const result = includes(expressionList);
+        describeStatement.test.push(this.test(result.trueCase));
         describeStatement.test.push(this.test(result.falseCase));
       }
     }

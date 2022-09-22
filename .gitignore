@@ -110,3 +110,4 @@ dist
 .tern-port
 yarn.lock
 testCache.json
+coverage.json

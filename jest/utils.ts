@@ -141,6 +141,11 @@ export const tagKindToString = (kind: number, value: string, isSyntaxKind = fals
   return value;
 };
 
+export const kindToType = new Map<number, number>([
+  [ 8, 8 ],
+  [ 10, 4 ],
+]);
+
 const parseTypeFlags = new Map<number, any>([
   [ 4, (value: string) => value.replace(/^["|'](.*)["|']$/g,"$1") ],
   [ 8, (value: string) => Number(value) ],
@@ -186,4 +191,21 @@ const typeFlags = new Map<number, any>([
 // 返回mock值
 export const mockValue = (kind: number) => {
   return typeFlags.get(kind);
+}
+const typeString = new Map<string, any>([
+  [ 'string', { value: 'mock', kind: 4 } ],
+  [ 'number', { value: 1, kind: 8 } ],
+]);
+// 返回mock值
+export const mockValueFromStringType = (type: string) => {
+  return typeString.get(type);
+}
+
+const unTypeString = new Map<string, any>([
+  [ 'string', { value: 1, kind: 8 } ],
+  [ 'number', { value: 'mock', kind: 4 } ],
+]);
+// 返回mock值
+export const mockUnValueFromStringType = (type: string) => {
+  return unTypeString.get(type);
 }

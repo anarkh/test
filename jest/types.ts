@@ -27,6 +27,7 @@ export interface ExpressionList {
   weight?: number;
   trueCase?: Case[];
   falseCase?: Case[];
+  expression? :ts.Expression;
 }
 
 export interface Tag {

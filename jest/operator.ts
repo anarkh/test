@@ -1,5 +1,6 @@
-import { ExpressionList } from './types';
-import { concatExpression, parseValue } from './utils';
+import ts from 'typescript';
+import { Case, ExpressionList } from './types';
+import { concatExpression, kindToType, mockUnValueFromStringType, mockValueFromStringType, parseValue } from './utils';
 
 export const mathCalculate = (left: ExpressionList, right: ExpressionList, operate: ExpressionList, isReverse = false): ExpressionList => {
   const leftNumber = Number(left.text);
@@ -154,6 +155,25 @@ export const barBar = (variable: ExpressionList, constant: ExpressionList): Expr
   }
 }
 export const exclamationEquals = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
+  if (ts.SyntaxKind.TypeOfExpression === variable.kind) {
+    console.log(variable.expression);
+    const text = variable.expression.getText();
+    const kind = variable.expression.kind;
+    return {
+      text,
+      kind,
+      trueCase: [{
+        text,
+        kind: mockUnValueFromStringType(constant.text).kind,
+        value: mockUnValueFromStringType(constant.text).value,
+      }],
+      falseCase: [{
+        text,
+        kind: mockValueFromStringType(constant.text).kind,
+        value: mockValueFromStringType(constant.text).value,
+      }],
+    }
+  }
   const value = parseValue(constant.kind, constant.text);
   return {
     text: variable.text,
@@ -171,6 +191,25 @@ export const exclamationEquals = (variable: ExpressionList, constant: Expression
   }
 }
 export const equalsEqualsEquals = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
+  if (ts.SyntaxKind.TypeOfExpression === variable.kind) {
+    const text = variable.expression.getText();
+    const kind = variable.expression.kind;
+    return {
+      text,
+      kind,
+      trueCase: [{
+        text,
+        kind: mockValueFromStringType(constant.text).kind,
+        value: mockValueFromStringType(constant.text).value,
+      }],
+      falseCase: [{
+        text,
+        kind: mockUnValueFromStringType(constant.text).kind,
+        value: mockUnValueFromStringType(constant.text).value,
+      }],
+    }
+  }
+
   const value = parseValue(constant.kind, constant.text);
   return {
     text: variable.text,
@@ -186,4 +225,45 @@ export const equalsEqualsEquals = (variable: ExpressionList, constant: Expressio
       value: value + 1,
     }],
   }
+}
+export const includes = (variable: ExpressionList): ExpressionList => {
+  const value = parseValue(variable.kind, variable.text);
+  let trueCase: Case; 
+  let falseCase: Case; 
+  if (ts.isPropertyAccessExpression(variable.expression) && ts.isArrayLiteralExpression(variable.expression.expression)) {
+    const elements = variable.expression.expression.elements;
+    if (elements.length > 0) {
+      const typeFlag = kindToType.get(elements[0].kind);
+      trueCase = {
+        text: variable.text,
+        kind: typeFlag,
+        value: parseValue(elements[0].kind, elements[0].getText(), true),
+      };
+      const falseValue = elements.reduce((previousValue, currentValue) => {
+        const value = parseValue(currentValue.kind, currentValue.getText(), true);
+        return `${previousValue}.${value}`;
+      }, 'mock');
+      falseCase = {
+        text: variable.text,
+        kind: 4,
+        value: falseValue,
+      };
+      return {
+        text: variable.text,
+        kind: variable.kind,
+        trueCase: [trueCase],
+        falseCase: [falseCase],
+      };
+    }
+  }
+  return {
+    text: variable.text,
+    kind: variable.kind,
+    trueCase: [],
+    falseCase: [{
+      text: variable.text,
+      kind: 4,
+      value: 'mock',
+    }],
+  };
 }

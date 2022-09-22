@@ -26,13 +26,14 @@ class AutoJest {
 
   init() {
     ts.forEachChild(this.sourceFile, (node) => {
-      // @ts-ignore
       if (ts.isImportDeclaration(node)) {
         this.importDeclaration(node);
       } else if (ts.isVariableStatement(node)) {
         this.variableStatement(node);
       } else if (ts.isExportDeclaration(node)) {
         this.exportDeclaration(node);
+      } else if (ts.isFunctionDeclaration(node)) {
+        this.functionDeclaration(node);
       }
     });
     this.testFile.createFunctionImport(this.exportList);
@@ -80,26 +81,26 @@ class AutoJest {
     }
   }
   // 获取参数注释值
-getJSDocParameterTags(node: ts.ParameterDeclaration): Tag[] {
-  const jSDocParameterTags = ts.getJSDocParameterTags(node);
-  const tags = jSDocParameterTags.map((tag) => {
-    let tagType = 'any';
-    let tagTypeFlag = 1;
-    if (tag.typeExpression) {
-      const tagTypeNode = this.typeChecker.getTypeAtLocation(tag.typeExpression.type);
-      tagType = this.typeChecker.typeToString(tagTypeNode);
-      tagTypeFlag = tagTypeNode.getFlags();
-    }
+  getJSDocParameterTags(node: ts.ParameterDeclaration): Tag[] {
+    const jSDocParameterTags = ts.getJSDocParameterTags(node);
+    const tags = jSDocParameterTags.map((tag) => {
+      let tagType = 'any';
+      let tagTypeFlag = 1;
+      if (tag.typeExpression) {
+        const tagTypeNode = this.typeChecker.getTypeAtLocation(tag.typeExpression.type);
+        tagType = this.typeChecker.typeToString(tagTypeNode);
+        tagTypeFlag = tagTypeNode.getFlags();
+      }
 
-    return {
-      text: tag.comment.toString(),
-      type: tagType,
-      typeFlag: tagTypeFlag,
-    };
-  });
+      return {
+        text: tag.comment.toString(),
+        type: tagType,
+        typeFlag: tagTypeFlag,
+      };
+    });
 
-  return tags;
-}
+    return tags;
+  }
 
   // 获取return注释值
   getJSDocReturnTag(node: ts.Node): Tag | undefined {
@@ -192,6 +193,18 @@ getJSDocParameterTags(node: ts.ParameterDeclaration): Tag[] {
       this.analyzeFunction(declarations);
     }
   }
+  /**
+   * 分析方法定义
+   * @param node
+   * @return
+   */
+  functionDeclaration(node: ts.FunctionDeclaration) {
+    const modifiers = node.modifiers;
+    // isExportModifier
+    if (modifiers?.[0]?.kind === 93) {
+      this.analyzeFunction(node);
+    }
+  }
 
   exportDeclaration(node: ts.ExportDeclaration) {
     node.exportClause.forEachChild((node: ts.ExportSpecifier) => {
@@ -218,15 +231,17 @@ getJSDocParameterTags(node: ts.ParameterDeclaration): Tag[] {
     })
   }
 }
-
-const main = () => {
+export const main = (options: { filePath: string; }) => {
   const fileAttributes = new FileAttributes({
     baseDir: process.env.PWD,
-    filePath: './jest/readYml.ts',
+    filePath: options.filePath,
   });
   logger(fileAttributes);
-  const autoJest = new AutoJest({
+  new AutoJest({
     fileAttributes: fileAttributes,
   });
+  return false;
 };
-main();
+main({
+  filePath: './jest/readYml.ts',
+});
