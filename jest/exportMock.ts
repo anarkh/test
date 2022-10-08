@@ -385,14 +385,25 @@ export class ExportMock {
     }
   }
   // 根据参数类型，推断一个mock数据
-  setMockParameters(typeChecker: ts.TypeChecker) {
+  setMockParameters(typeChecker: ts.TypeChecker): void {
     this.node.parameters.forEach(parameter => {
-      if (parameter.typeFlag === 524288) {
-        const mock = mockSymbolValue(parameter.typeNode.getSymbol(), typeChecker);
+      if (parameter.typeNode === undefined) {
+        return;
+      }
+      if (ts.isTypeReferenceNode(parameter.typeNode)){
+        const mock = mockSymbolValue(typeChecker.getTypeAtLocation(parameter.typeNode).getSymbol(), typeChecker);
         this.mockParameters.set(parameter.name, mock);
-        console.log('---------------------------');
-        console.log(parameter.typeNode.getSymbol());
-        console.log(parameter.typeNode.getSymbol().declarations[0]);
+      } else if (ts.isArrayTypeNode(parameter.typeNode)){
+        const arr = [];
+        const elementType =  typeChecker.getTypeAtLocation(parameter.typeNode.elementType);
+        const typeSymbol = elementType.getSymbol();
+        if (typeSymbol) {
+          const mock = mockSymbolValue(typeSymbol, typeChecker);
+          arr.push(mock);
+        } else {
+          arr.push(mockValue(elementType.flags));
+        }
+        this.mockParameters.set(parameter.name, arr);
       }
     });
   }

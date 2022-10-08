@@ -173,7 +173,7 @@ class AutoJest {
         return {
           name,
           type,
-          typeNode,
+          typeNode: element.type,
           tag: this.getJSDocParameterTags(element),
           typeFlag,
           defaultValue,
