@@ -1,5 +1,5 @@
 import { FileAttributes } from './fileAttributes';
-import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue, mockValue } from './utils';
+import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue, mockValue, mockSymbolValue } from './utils';
 import { FunctionNode, ExpressionList, TestStatement, DescribeStatement, Case } from './types';
 import ts from 'typescript';
 import { ampersandAmpersand, asterisk, barBar, equalsEqualsEquals, exclamationEquals, includes, mathCalculate, minus, percent, plus, slash } from './operator';
@@ -10,9 +10,11 @@ import { ampersandAmpersand, asterisk, barBar, equalsEqualsEquals, exclamationEq
 export class ExportMock {
   fileAttributes: FileAttributes;
   node: FunctionNode;
+  mockParameters: Map<string, any>;
   constructor(options) {
     this.fileAttributes = options.fileAttributes;
     this.node = options.node;
+    this.mockParameters = new Map();
   }
 
   beforeAll() {
@@ -90,20 +92,23 @@ export class ExportMock {
       describeStatement.test.push(testStatement);
     }
   }
+  // 生成测试用例
   test(testInfo: Case[]): TestStatement {
     const parameters = this.node.parameters.map(parameter => {
       const testValue = testInfo.find(item => parameter.name === item.text);
+      
       if (testValue) {
         return {
           name: parameter.name,
           typeFlag: testValue.kind,
-          value: testValue.value,
+          value: this.completionParameters(parameter.name, testValue.value),
         };
       }
+      const value = this.completionParameters(parameter.name, mockValue(parameter.typeFlag));
       return {
         name: parameter.name,
         typeFlag: parameter.typeFlag,
-        value: mockValue(parameter.typeFlag),
+        value,
       };
     });
     const name = parameters.map(parameter => {
@@ -121,6 +126,15 @@ export class ExportMock {
       assert: '\'\'',
     }
   }
+  // 根据参数类型，补全参数值
+  completionParameters(key: string, value: any): any {
+    const mockValue = this.mockParameters.get(key);
+    if (typeof mockValue === 'object') {
+      return Object.assign(mockValue, value);
+    }
+
+    return value;
+  }
   // 生成计算表达式语句单元
   getExpressionList(node: ts.Expression): ExpressionList {
     const element: ExpressionList = {
@@ -128,13 +142,19 @@ export class ExportMock {
       kind: node.kind,
     }
     if (ts.isTypeOfExpression(node)) {
+      // typeof计算语句
       element.expression = node.expression;
-    }
-    if (ts.isCallExpression(node)) {
+    } else if (ts.isCallExpression(node)) {
+      // include计算语句
       element.expression = node.expression;
       if (ts.isPropertyAccessExpression(node.expression) && node.expression.name.getText() === 'includes') {
         element.text = node.arguments[0].getText();
       }
+    } else if (ts.isPropertyAccessExpression(node)) {
+      // 对象参数
+      element.text = node.expression.getText();
+      element.expression = node;
+      
     }
     return element;
   }
@@ -225,7 +245,7 @@ export class ExportMock {
   }
 
   isVariable (expression: ExpressionList) {
-    if ([ts.SyntaxKind.Identifier, ts.SyntaxKind.TypeOfExpression, -1].includes(expression.kind)) {
+    if ([ts.SyntaxKind.Identifier, ts.SyntaxKind.TypeOfExpression, ts.SyntaxKind.PropertyAccessExpression, -1].includes(expression.kind)) {
       return true;
     }
 
@@ -364,13 +384,26 @@ export class ExportMock {
       }
     }
   }
+  // 根据参数类型，推断一个mock数据
+  setMockParameters(typeChecker: ts.TypeChecker) {
+    this.node.parameters.forEach(parameter => {
+      if (parameter.typeFlag === 524288) {
+        const mock = mockSymbolValue(parameter.typeNode.getSymbol(), typeChecker);
+        this.mockParameters.set(parameter.name, mock);
+        console.log('---------------------------');
+        console.log(parameter.typeNode.getSymbol());
+        console.log(parameter.typeNode.getSymbol().declarations[0]);
+      }
+    });
+  }
  
-  produce() {
+  produce(typeChecker: ts.TypeChecker) {
     logger(this.node);
     const describeStatement = {
       name: this.node.name,
       test: [],
     };
+    this.setMockParameters(typeChecker);
     this.jSDocTest(describeStatement);
     this.defaultValueTest(describeStatement);
     // console.log(this.node.body.statements);

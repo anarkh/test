@@ -66,10 +66,11 @@ export class CreateFile {
   }
   writeTest(testStatement: TestStatement): string {
     const jsDoc = testStatement.doc ? `// ${testStatement.doc}` : '';
+    const assert = typeof testStatement.assert === 'object' ? JSON.stringify(testStatement.assert) : testStatement.assert;
     return `${jsDoc}
     test('${testStatement.name}', () => {
       ${testStatement.body}
-      expect(${testStatement.expect}).toEqual(${testStatement.assert});
+      expect(${testStatement.expect}).toEqual(${assert});
     });`;
   }
   resetAssert(assertionResult, index: number): void {
@@ -90,12 +91,12 @@ export class CreateFile {
       }
     });
   }
-  createDescribe(node): void {
+  createDescribe(node, typeChecker): void {
     const exportMock = new ExportMock({
       fileAttributes: this.fileAttributes,
       node: node,
     });
-    const result = exportMock.produce();
+    const result = exportMock.produce(typeChecker);
     if (result) {
       this.describe.push(result);
     }

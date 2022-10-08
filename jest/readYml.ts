@@ -1,15 +1,24 @@
 import { parse } from 'yaml';
 import { readFileSync } from 'fs';
-import { debounce } from '@utils/debounce-throttle';
+// import { Context } from 'koa';
 import path from 'path';
+import { FunctionNode } from './types';
+
+interface TestMock {
+  c: string;
+}
+interface Options {
+  a: number;
+  b: TestMock[];
+}
 
 /**
  * @param {string} filePath ./test.yml
  * @param options 2
  * @returns {number} 7
  */
-export function readYml (filePath = '', options = 5): any {
-  if (['./test.yml'].includes(filePath) || options === 6) {
+export function readYml (filePath = '', options: FunctionNode): any {
+  if (options.a === 6) {
     const yml = readFileSync(path.resolve(__dirname, filePath), 'utf8');
     return parse(yml);
   }

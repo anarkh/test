@@ -1,4 +1,5 @@
-import { ExpressionList, TagKind } from "./types";
+import ts from "typescript";
+import { ExpressionList } from "./types";
 
 export const logger = (...args: any) => {
   if (process.env.node_env === 'development') {
@@ -126,10 +127,12 @@ export const OperatorKind = {
 const typeFlagsMap = new Map([
   [ 4, (value: string) => `'${value}'` ],
   [ 8, (value: string) => value ],
+  [ 524288, (value) => JSON.stringify(value) ],
 ]);
 const syntaxKindMap = new Map<number, any>([
   [ 8, (value: string) => value ],
   [ 10, (value: string) => `'${value}'` ],
+  [ 206, (value) => value ],
 ]);
 // 根据type的类型转换值为在字符串中的显示值
 export const tagKindToString = (kind: number, value: string, isSyntaxKind = false) => {
@@ -144,6 +147,7 @@ export const tagKindToString = (kind: number, value: string, isSyntaxKind = fals
 export const kindToType = new Map<number, number>([
   [ 8, 8 ],
   [ 10, 4 ],
+  [ 206, 524288 ],
 ]);
 
 const parseTypeFlags = new Map<number, any>([
@@ -192,6 +196,33 @@ const typeFlags = new Map<number, any>([
 export const mockValue = (kind: number) => {
   return typeFlags.get(kind);
 }
+const mockKindValue = new Map<number, any>([
+  [ 130, 'mock' ],
+  [ 133, true ],
+  [ 150, 'mock' ],
+  [ 147, 1 ],
+]);
+export const mockSymbolValue = (symbol: ts.Symbol, typeChecker: ts.TypeChecker) => {
+  const value = {};
+  symbol.members.forEach((member) => {
+    const valueDeclaration = member.valueDeclaration as any;
+    const mockValue = mockKindValue.get(valueDeclaration.type.kind);
+    if (mockValue) {
+      value[valueDeclaration.name.escapedText] = mockValue;
+    } else if (ts.isArrayTypeNode(valueDeclaration.type)) {
+      const type = typeChecker.getTypeAtLocation(valueDeclaration.type.elementType).getSymbol();
+      const arr = [];
+      arr.push(mockSymbolValue(type, typeChecker));
+      value[valueDeclaration.name.escapedText] = arr;
+    } else if (ts.isTypeReferenceNode(valueDeclaration.type)){
+      const referenceSymbol = typeChecker.getTypeAtLocation(valueDeclaration.type).getSymbol();
+      value[valueDeclaration.name.escapedText] = mockSymbolValue(referenceSymbol, typeChecker);
+    }
+  });
+
+  return value;
+}
+  
 const typeString = new Map<string, any>([
   [ 'string', { value: 'mock', kind: 4 } ],
   [ 'number', { value: 1, kind: 8 } ],

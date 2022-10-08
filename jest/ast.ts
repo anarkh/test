@@ -5,13 +5,15 @@ import { FunctionNode, Tag } from "./types";
 import { logger } from './utils';
 
 // const resultFile = ts.createSourceFile("someFileName.ts", readFileSync(file).toString(), ts.ScriptTarget.Latest, /*setParentNodes*/ false, ts.ScriptKind.TS);
-
+interface AutoJestOption {
+  fileAttributes: FileAttributes;
+}
 class AutoJest {
   sourceFile: ts.SourceFile;
   typeChecker: ts.TypeChecker;
   testFile: CreateFile;
   exportList: FunctionNode[];
-  constructor(options) {
+  constructor(options: AutoJestOption) {
     const filePath = options.fileAttributes.filePath;
     const program = ts.createProgram({
       rootNames: [filePath],
@@ -38,7 +40,7 @@ class AutoJest {
     });
     this.testFile.createFunctionImport(this.exportList);
     this.exportList.forEach((item) => {
-      this.testFile.createDescribe(item);
+      this.testFile.createDescribe(item, this.typeChecker);
     });
     this.testFile.createFile();
   }
@@ -171,6 +173,7 @@ class AutoJest {
         return {
           name,
           type,
+          typeNode,
           tag: this.getJSDocParameterTags(element),
           typeFlag,
           defaultValue,

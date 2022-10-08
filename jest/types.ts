@@ -1,8 +1,10 @@
 import ts from "typescript";
 
 interface Parameters {
+  mock?: any;
   name: string; // 参数名
   type: string; // 参数类型
+  typeNode: ts.Type; // 参数类型
   typeFlag: ts.TypeFlags; // 参数类型flag
   defaultValue: any; // 默认值
   tag: Tag[]; // 注释中参数值

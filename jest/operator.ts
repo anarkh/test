@@ -48,6 +48,21 @@ const changeCase = (variable: ExpressionList): ExpressionList => {
     falseCase: variable.trueCase,
   }
 }
+
+const getPropertyValue = (expression: ts.PropertyAccessExpression, value: any) => {
+  if (ts.isPropertyAccessExpression(expression)) {
+    const trueMock = {};
+    const falseMock = {};
+    trueMock[expression.name.getText()] = value;
+    falseMock[expression.name.getText()] = value + 1;
+    return { trueMock, falseMock };
+  }
+
+  return {
+    trueMock: value,
+    falseMock: value +1,
+  };
+}
 export const plus = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   if (variable.kind === -1) {
     const value = variable.trueCase[0].value;
@@ -156,7 +171,6 @@ export const barBar = (variable: ExpressionList, constant: ExpressionList): Expr
 }
 export const exclamationEquals = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   if (ts.SyntaxKind.TypeOfExpression === variable.kind) {
-    console.log(variable.expression);
     const text = variable.expression.getText();
     const kind = variable.expression.kind;
     return {
@@ -211,6 +225,25 @@ export const equalsEqualsEquals = (variable: ExpressionList, constant: Expressio
   }
 
   const value = parseValue(constant.kind, constant.text);
+  if (variable.kind === 206 && ts.isPropertyAccessExpression(variable.expression)) {
+    const { trueMock, falseMock } = getPropertyValue(variable.expression, value);
+  
+    return {
+      text: variable.text,
+      kind: variable.kind,
+      trueCase: [{
+        text: variable.text,
+        kind: 524288,
+        value: trueMock,
+      }],
+      falseCase: [{
+        text: variable.text,
+        kind: 524288,
+        value: falseMock,
+      }],
+    }
+  }
+  
   return {
     text: variable.text,
     kind: variable.kind,
