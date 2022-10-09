@@ -1,5 +1,5 @@
 import { FileAttributes } from './fileAttributes';
-import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue, mockValue, mockSymbolValue } from './utils';
+import { logger, isBinaryExpressionOperatorToken, operatorWeight, OperatorKind, tagKindToString, parseValue, mockValue, mockSymbolValue, testNameView, kindToType } from './utils';
 import { FunctionNode, ExpressionList, TestStatement, DescribeStatement, Case } from './types';
 import ts from 'typescript';
 import { ampersandAmpersand, asterisk, barBar, equalsEqualsEquals, exclamationEquals, includes, mathCalculate, minus, percent, plus, slash } from './operator';
@@ -100,7 +100,7 @@ export class ExportMock {
       if (testValue) {
         return {
           name: parameter.name,
-          typeFlag: testValue.kind,
+          typeFlag: kindToType.get(testValue.kind),
           value: this.completionParameters(parameter.name, testValue.value),
         };
       }
@@ -112,7 +112,7 @@ export class ExportMock {
       };
     });
     const name = parameters.map(parameter => {
-      return `${parameter.name}:${parameter.value}`;
+      return `${parameter.name}:${testNameView(parameter.value)}`;
     }).join(' ');
     const body = `const result = ${this.node.name}(${parameters.map(parameter => {
       return tagKindToString(parameter.typeFlag, parameter.value);
@@ -390,6 +390,7 @@ export class ExportMock {
       if (parameter.typeNode === undefined) {
         return;
       }
+      
       if (ts.isTypeReferenceNode(parameter.typeNode)){
         const mock = mockSymbolValue(typeChecker.getTypeAtLocation(parameter.typeNode).getSymbol(), typeChecker);
         this.mockParameters.set(parameter.name, mock);

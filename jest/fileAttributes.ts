@@ -30,7 +30,7 @@ export class FileAttributes {
     this.fileDir = fileObj.dir;
 
     const relativePath = relative(options.baseDir, fileObj.dir);
-    this.testFileName = `${fileObj.name}.spec${fileObj.ext}`;
+    this.testFileName = `${fileObj.name}.auto.spec${fileObj.ext}`;
     this.testFilePath = resolve(options.baseDir, 'test', relativePath, this.testFileName);
     this.testFileDir = resolve(options.baseDir, 'test', relativePath);
     this.testRelativePath = relative(this.testFileDir, this.filePath);

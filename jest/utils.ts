@@ -161,7 +161,7 @@ const parseSyntaxKind = new Map<number, any>([
 // 根据type的类型转换值为正常类型值
 export const parseValue = (kind: number, value: string, isSyntaxKind = false) => {
   const result = isSyntaxKind ? parseSyntaxKind.get(kind) : parseTypeFlags.get(kind);
-  if (result) {
+  if (result && value) {
     return result(value);
   }
 
@@ -204,22 +204,30 @@ const mockKindValue = new Map<number, any>([
 ]);
 export const mockSymbolValue = (symbol: ts.Symbol, typeChecker: ts.TypeChecker) => {
   const value = {};
-  symbol.members.forEach((member) => {
-    const valueDeclaration = member.valueDeclaration as any;
-    const mockValue = mockKindValue.get(valueDeclaration.type.kind);
-    if (mockValue) {
-      value[valueDeclaration.name.escapedText] = mockValue;
-    } else if (ts.isArrayTypeNode(valueDeclaration.type)) {
-      const type = typeChecker.getTypeAtLocation(valueDeclaration.type.elementType).getSymbol();
-      const arr = [];
-      arr.push(mockSymbolValue(type, typeChecker));
-      value[valueDeclaration.name.escapedText] = arr;
-    } else if (ts.isTypeReferenceNode(valueDeclaration.type)){
-      const referenceSymbol = typeChecker.getTypeAtLocation(valueDeclaration.type).getSymbol();
-      value[valueDeclaration.name.escapedText] = mockSymbolValue(referenceSymbol, typeChecker);
-    }
-  });
-
+  if (symbol?.members) {
+    const name = symbol.escapedName;
+    symbol.members.forEach((member) => {
+      const valueDeclaration = member.valueDeclaration as any;
+      if (valueDeclaration?.questionToken || member.escapedName === 'T' || valueDeclaration?.type === undefined) {
+        return;
+      }
+      const mockValue = mockKindValue.get(valueDeclaration.type.kind);
+      if (mockValue) {
+        value[valueDeclaration.name.escapedText] = mockValue;
+      } else if (ts.isArrayTypeNode(valueDeclaration.type)) {
+        const arr = [];
+        const type = typeChecker.getTypeAtLocation(valueDeclaration.type.elementType).getSymbol();
+        if (type?.escapedName !== name) {
+          arr.push(mockSymbolValue(type, typeChecker));
+        }
+        value[valueDeclaration.name.escapedText] = arr;
+      } else if (ts.isTypeReferenceNode(valueDeclaration.type)){
+        const referenceSymbol = typeChecker.getTypeAtLocation(valueDeclaration.type).getSymbol();
+        value[valueDeclaration.name.escapedText] = mockSymbolValue(referenceSymbol, typeChecker);
+      }
+    });
+  
+  }
   return value;
 }
   
@@ -240,3 +248,14 @@ const unTypeString = new Map<string, any>([
 export const mockUnValueFromStringType = (type: string) => {
   return unTypeString.get(type);
 }
+
+// 设置测试用例显示值
+export const testNameView = (name: any) => {
+  if (Array.isArray(name)) {
+    return 'array';
+  } else if (typeof name === 'object') {
+    return 'object';
+  }
+
+  return name;
+};

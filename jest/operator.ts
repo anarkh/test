@@ -49,19 +49,63 @@ const changeCase = (variable: ExpressionList): ExpressionList => {
   }
 }
 
-const getPropertyValue = (expression: ts.PropertyAccessExpression, value: any) => {
-  if (ts.isPropertyAccessExpression(expression)) {
-    const trueMock = {};
-    const falseMock = {};
-    trueMock[expression.name.getText()] = value;
-    falseMock[expression.name.getText()] = value + 1;
-    return { trueMock, falseMock };
+const getPropertyValue = (expression: ts.PropertyAccessExpression, value) => {
+  const trueMock = {};
+  const falseMock = {};
+  trueMock[expression.name.getText()] = value.trueMock;
+  falseMock[expression.name.getText()] = value.falseMock;
+
+  const result = { trueMock, falseMock };
+  if (ts.isPropertyAccessExpression(expression.expression)) {
+    return getPropertyValue(expression.expression, result);
   }
 
-  return {
-    trueMock: value,
-    falseMock: value +1,
-  };
+  return result;
+}
+const getPropertyKey = (expression) => {
+  if (ts.isPropertyAccessExpression(expression.expression)) {
+    return getPropertyKey(expression.expression);
+  }
+
+  return expression.expression.escapedText;
+}
+
+const typeOfExpression = (variable: ExpressionList, constant: ExpressionList) => {
+  const trueCase = mockValueFromStringType(constant.text);
+  const falseCase = mockUnValueFromStringType(constant.text);
+  if (ts.isPropertyAccessExpression(variable.expression)) {
+    const { trueMock, falseMock } = getPropertyValue(variable.expression, {
+      trueMock: trueCase.value,
+      falseMock: falseCase.value,
+    });
+    const text = getPropertyKey(variable.expression);
+    return {
+      trueCase: [{
+        text,
+        kind: 524288,
+        value: trueMock,
+      }],
+      falseCase: [{
+        text,
+        kind: 524288,
+        value: falseMock,
+      }],
+    };
+  } else {
+    const text = variable.expression.getText();
+    return {
+      trueCase: [{
+        text,
+        kind: trueCase.kind,
+        value: trueCase.value,
+      }],
+      falseCase: [{
+        text,
+        kind: falseCase.kind,
+        value: falseCase.value,
+      }],
+    }
+  }
 }
 export const plus = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   if (variable.kind === -1) {
@@ -208,19 +252,12 @@ export const equalsEqualsEquals = (variable: ExpressionList, constant: Expressio
   if (ts.SyntaxKind.TypeOfExpression === variable.kind) {
     const text = variable.expression.getText();
     const kind = variable.expression.kind;
+    const { trueCase, falseCase} = typeOfExpression(variable, constant);
     return {
       text,
       kind,
-      trueCase: [{
-        text,
-        kind: mockValueFromStringType(constant.text).kind,
-        value: mockValueFromStringType(constant.text).value,
-      }],
-      falseCase: [{
-        text,
-        kind: mockUnValueFromStringType(constant.text).kind,
-        value: mockUnValueFromStringType(constant.text).value,
-      }],
+      trueCase,
+      falseCase,
     }
   }
 
@@ -260,7 +297,6 @@ export const equalsEqualsEquals = (variable: ExpressionList, constant: Expressio
   }
 }
 export const includes = (variable: ExpressionList): ExpressionList => {
-  const value = parseValue(variable.kind, variable.text);
   let trueCase: Case; 
   let falseCase: Case; 
   if (ts.isPropertyAccessExpression(variable.expression) && ts.isArrayLiteralExpression(variable.expression.expression)) {
