@@ -9,11 +9,11 @@ export const mathCalculate = (left: ExpressionList, right: ExpressionList, opera
   let result;
   if (isReverse) {
     switch (operate.kind) {
-      case 39: 
+      case 39:
         result = leftNumber - rightNumber;
       case 40:
         result = leftNumber + rightNumber;
-      case 41: 
+      case 41:
         result = leftNumber / rightNumber;
       case 43:
         result = leftNumber * rightNumber;
@@ -22,32 +22,32 @@ export const mathCalculate = (left: ExpressionList, right: ExpressionList, opera
     }
   } else {
     switch (operate.kind) {
-      case 39: 
-        result = leftNumber+rightNumber;
+      case 39:
+        result = leftNumber + rightNumber;
       case 40:
-        result = leftNumber-rightNumber;
-      case 41: 
-        result = leftNumber*rightNumber;
+        result = leftNumber - rightNumber;
+      case 41:
+        result = leftNumber * rightNumber;
       case 43:
-        result = leftNumber/rightNumber;
+        result = leftNumber / rightNumber;
       case 44:
-        result = leftNumber%rightNumber;
+        result = leftNumber % rightNumber;
     }
   }
 
   return {
     text: result,
     kind: 8,
-  }
-}
+  };
+};
 
 const changeCase = (variable: ExpressionList): ExpressionList => {
   return {
     ...variable,
     trueCase: variable.falseCase,
     falseCase: variable.trueCase,
-  }
-}
+  };
+};
 
 const getPropertyValue = (expression: ts.PropertyAccessExpression, value) => {
   const trueMock = {};
@@ -61,14 +61,20 @@ const getPropertyValue = (expression: ts.PropertyAccessExpression, value) => {
   }
 
   return result;
-}
+};
 const getPropertyKey = (expression) => {
   if (ts.isPropertyAccessExpression(expression.expression)) {
     return getPropertyKey(expression.expression);
   }
 
   return expression.expression.escapedText;
-}
+};
+
+const mockArray = (length: number) => {
+  const arr = new Array(length);
+  arr.fill('mock');
+  return arr;
+};
 
 const typeOfExpression = (variable: ExpressionList, constant: ExpressionList) => {
   const trueCase = mockValueFromStringType(constant.text);
@@ -80,33 +86,41 @@ const typeOfExpression = (variable: ExpressionList, constant: ExpressionList) =>
     });
     const text = getPropertyKey(variable.expression);
     return {
-      trueCase: [{
-        text,
-        kind: 524288,
-        value: trueMock,
-      }],
-      falseCase: [{
-        text,
-        kind: 524288,
-        value: falseMock,
-      }],
+      trueCase: [
+        {
+          text,
+          kind: 524288,
+          value: trueMock,
+        },
+      ],
+      falseCase: [
+        {
+          text,
+          kind: 524288,
+          value: falseMock,
+        },
+      ],
     };
   } else {
     const text = variable.expression.getText();
     return {
-      trueCase: [{
-        text,
-        kind: trueCase.kind,
-        value: trueCase.value,
-      }],
-      falseCase: [{
-        text,
-        kind: falseCase.kind,
-        value: falseCase.value,
-      }],
-    }
+      trueCase: [
+        {
+          text,
+          kind: trueCase.kind,
+          value: trueCase.value,
+        },
+      ],
+      falseCase: [
+        {
+          text,
+          kind: falseCase.kind,
+          value: falseCase.value,
+        },
+      ],
+    };
   }
-}
+};
 export const plus = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   if (variable.kind === -1) {
     const value = variable.trueCase[0].value;
@@ -121,17 +135,21 @@ export const plus = (variable: ExpressionList, constant: ExpressionList): Expres
     return {
       text: 'result',
       kind: -1,
-      trueCase: [{
-        text: `${value + 1}`,
-        kind: variable.kind,
-      }],
-      falseCase: [{
-        text: `${- value}`,
-        kind: variable.kind,
-      }],
-    }
+      trueCase: [
+        {
+          text: `${value + 1}`,
+          kind: variable.kind,
+        },
+      ],
+      falseCase: [
+        {
+          text: `${-value}`,
+          kind: variable.kind,
+        },
+      ],
+    };
   }
-}
+};
 export const minus = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   if (variable.kind === -1) {
     const value = variable.trueCase[0].value;
@@ -146,28 +164,32 @@ export const minus = (variable: ExpressionList, constant: ExpressionList): Expre
     return {
       text: 'result',
       kind: -1,
-      trueCase: [{
-        text: `${value + 1}`,
-        kind: variable.kind,
-      }],
-      falseCase: [{
-        text: `${value}`,
-        kind: variable.kind,
-      }],
-    }
+      trueCase: [
+        {
+          text: `${value + 1}`,
+          kind: variable.kind,
+        },
+      ],
+      falseCase: [
+        {
+          text: `${value}`,
+          kind: variable.kind,
+        },
+      ],
+    };
   }
-}
+};
 export const asterisk = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   return variable;
-}
+};
 export const slash = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   return variable;
-}
+};
 export const percent = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   const constantValue = Number(constant.text);
-  const value = variable.kind === -1? variable.trueCase[0].value : variable.text;
+  const value = variable.kind === -1 ? variable.trueCase[0].value : variable.text;
   const remainderPlus = constantValue === 1 ? 0.5 : constantValue + 1;
-  const remainder = value%constantValue;
+  const remainder = value % constantValue;
   if (variable.kind === -1) {
     if (remainder === 0) {
       const result = changeCase(variable);
@@ -181,17 +203,21 @@ export const percent = (variable: ExpressionList, constant: ExpressionList): Exp
     return {
       text: 'result',
       kind: -1,
-      trueCase: [{
-        text: constant.text + remainderPlus,
-        kind: variable.kind,
-      }],
-      falseCase: [{
-        text: constant.text,
-        kind: variable.kind,
-      }],
-    }
+      trueCase: [
+        {
+          text: constant.text + remainderPlus,
+          kind: variable.kind,
+        },
+      ],
+      falseCase: [
+        {
+          text: constant.text,
+          kind: variable.kind,
+        },
+      ],
+    };
   }
-}
+};
 export const ampersandAmpersand = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   const trueCase = concatExpression(variable.trueCase, constant.trueCase, true);
   const falseCase = concatExpression(variable.trueCase, constant.falseCase, true);
@@ -201,8 +227,8 @@ export const ampersandAmpersand = (variable: ExpressionList, constant: Expressio
     kind: variable.kind,
     trueCase,
     falseCase,
-  }
-}
+  };
+};
 export const barBar = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   const trueCase = concatExpression(variable.falseCase, constant.trueCase);
   const falseCase = concatExpression(variable.falseCase, constant.falseCase);
@@ -211,8 +237,8 @@ export const barBar = (variable: ExpressionList, constant: ExpressionList): Expr
     kind: variable.kind,
     trueCase,
     falseCase,
-  }
-}
+  };
+};
 export const exclamationEquals = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   if (ts.SyntaxKind.TypeOfExpression === variable.kind) {
     const text = variable.expression.getText();
@@ -220,85 +246,124 @@ export const exclamationEquals = (variable: ExpressionList, constant: Expression
     return {
       text,
       kind,
-      trueCase: [{
-        text,
-        kind: mockUnValueFromStringType(constant.text).kind,
-        value: mockUnValueFromStringType(constant.text).value,
-      }],
-      falseCase: [{
-        text,
-        kind: mockValueFromStringType(constant.text).kind,
-        value: mockValueFromStringType(constant.text).value,
-      }],
-    }
+      trueCase: [
+        {
+          text,
+          kind: mockUnValueFromStringType(constant.text).kind,
+          value: mockUnValueFromStringType(constant.text).value,
+        },
+      ],
+      falseCase: [
+        {
+          text,
+          kind: mockValueFromStringType(constant.text).kind,
+          value: mockValueFromStringType(constant.text).value,
+        },
+      ],
+    };
   }
   const value = parseValue(constant.kind, constant.text);
   return {
     text: variable.text,
     kind: variable.kind,
-    trueCase: [{
-      text: variable.text,
-      kind: constant.kind,
-      value: value + 1,
-    }],
-    falseCase: [{
-      text: variable.text,
-      kind: constant.kind,
-      value: value,
-    }],
-  }
-}
+    trueCase: [
+      {
+        text: variable.text,
+        kind: 4,
+        value: value + '1',
+      },
+    ],
+    falseCase: [
+      {
+        text: variable.text,
+        kind: constant.kind,
+        value: value,
+      },
+    ],
+  };
+};
 export const equalsEqualsEquals = (variable: ExpressionList, constant: ExpressionList): ExpressionList => {
   if (ts.SyntaxKind.TypeOfExpression === variable.kind) {
     const text = variable.expression.getText();
     const kind = variable.expression.kind;
-    const { trueCase, falseCase} = typeOfExpression(variable, constant);
+    const { trueCase, falseCase } = typeOfExpression(variable, constant);
     return {
       text,
       kind,
       trueCase,
       falseCase,
-    }
+    };
   }
 
   const value = parseValue(constant.kind, constant.text);
   if (variable.kind === 206 && ts.isPropertyAccessExpression(variable.expression)) {
-    const { trueMock, falseMock } = getPropertyValue(variable.expression, value);
-  
+    if (variable.expression.name.escapedText === 'length' && constant.kind === 8) {
+      return {
+        text: variable.text,
+        kind: 204,
+        trueCase: [
+          {
+            text: variable.text,
+            kind: 204,
+            value: mockArray(parseInt(constant.text)),
+          },
+        ],
+        falseCase: [
+          {
+            text: variable.text,
+            kind: 204,
+            value: mockArray(parseInt(constant.text) + 1),
+          },
+        ],
+      };
+    }
+
+    const { trueMock, falseMock } = getPropertyValue(variable.expression, {
+      trueMock: value,
+      falseMock: value + '1',
+    });
+
     return {
       text: variable.text,
       kind: variable.kind,
-      trueCase: [{
-        text: variable.text,
-        kind: 524288,
-        value: trueMock,
-      }],
-      falseCase: [{
-        text: variable.text,
-        kind: 524288,
-        value: falseMock,
-      }],
-    }
+      trueCase: [
+        {
+          text: variable.text,
+          kind: 524288,
+          value: trueMock,
+        },
+      ],
+      falseCase: [
+        {
+          text: variable.text,
+          kind: 524288,
+          value: falseMock,
+        },
+      ],
+    };
   }
-  
   return {
     text: variable.text,
     kind: variable.kind,
-    trueCase: [{
-      text: variable.text,
-      kind: constant.kind,
-      value: value,
-    }],
-    falseCase: [{
-      text: variable.text,
-      kind: constant.kind,
-      value: value + 1,
-    }],
-  }
-}
+    trueCase: [
+      {
+        text: variable.text,
+        kind: constant.kind,
+        value: value,
+      },
+    ],
+    falseCase: [
+      {
+        text: variable.text,
+        kind: 4,
+        value: value + '1',
+      },
+    ],
+  };
+};
 export const includes = (variable: ExpressionList): ExpressionList => {
-  let trueCase: Case; 
-  let falseCase: Case; 
+  let trueCase: Case;
+  let falseCase: Case;
   if (ts.isPropertyAccessExpression(variable.expression) && ts.isArrayLiteralExpression(variable.expression.expression)) {
     const elements = variable.expression.expression.elements;
     if (elements.length > 0) {
@@ -329,10 +394,12 @@ export const includes = (variable: ExpressionList): ExpressionList => {
     text: variable.text,
     kind: variable.kind,
     trueCase: [],
-    falseCase: [{
-      text: variable.text,
-      kind: 4,
-      value: 'mock',
-    }],
+    falseCase: [
+      {
+        text: variable.text,
+        kind: 4,
+        value: 'mock',
+      },
+    ],
   };
-}
+};

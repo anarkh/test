@@ -43,7 +43,7 @@ export class CreateFile {
   }
 
   createFunctionImport(functionNodes: FunctionNode[]): void {
-    const result = functionNodes.map(functionNode => {
+    const result = functionNodes.map((functionNode) => {
       return functionNode.name;
     });
     if (result) {
@@ -51,7 +51,6 @@ export class CreateFile {
       this.imports.push(`import { ${result.join(', ')} } from '${importFrom.dir}/${importFrom.name}';`);
     }
   }
-
 
   writeDescribe(describeStatement: DescribeStatement): string {
     if (describeStatement.test.length === 0) {
@@ -113,7 +112,6 @@ export class CreateFile {
       proseWrap: 'always',
       parser: 'babel',
     });
-
   }
 
   createFile(): void {
@@ -124,14 +122,17 @@ export class CreateFile {
     makeDirs(this.testFileDir);
     writeFileSync(this.testFilePath, code.join(''));
 
-    runCLI({
-      silent: true,
-      json: true,
-      reporters: [this.jestReportPath],
-      outputFile: './testCache.json',
-      _: [this.testFilePath],
-      $0: ''
-    }, [this.fileAttributes.jestConfigPath]).then((res) => {
+    runCLI(
+      {
+        silent: true,
+        json: true,
+        reporters: [this.jestReportPath],
+        outputFile: './testCache.json',
+        _: [this.testFilePath],
+        $0: '',
+      },
+      [this.fileAttributes.jestConfigPath]
+    ).then((res) => {
       res.results.testResults[0].testResults.forEach((test, index) => {
         if (test.status === 'failed') {
           this.resetAssert(test, index);
@@ -146,12 +147,12 @@ export class CreateFile {
     });
   }
 }
-const makeDirs = path => {
+const makeDirs = (path) => {
   if (existsSync(path)) {
-      return true;
+    return true;
   }
   if (makeDirs(dirname(path))) {
-      mkdirSync(path);
-      return true;
+    mkdirSync(path);
+    return true;
   }
 };

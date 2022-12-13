@@ -14,18 +14,15 @@ interface Options {
 
 /**
  * @param {string} filePath ./test.yml
+ * @param filePath 'test'
  * @param options 2
  * @returns {number} 7
  */
-export function readYml (filePath = '', options: string[]): any {
-  if (options.includes('6')) {
-    const yml = readFileSync(path.resolve(__dirname, filePath), 'utf8');
-    return parse(yml);
+export function test(filePath = '', options: any): any {
+  const b = options.a;
+  if (b === 6 && filePath === 'test') {
+    return filePath;
   }
-  // if (((A-6)*2+1)%2) {
-  //   const yml = readFileSync(path.resolve(__dirname, filePath), 'utf8');
-  //   return parse(yml);
-  // }
 
   return options;
 }

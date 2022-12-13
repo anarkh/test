@@ -1,7 +1,7 @@
-import ts from "typescript";
+import ts from 'typescript';
 import { CreateFile } from './createFile';
 import { FileAttributes } from './fileAttributes';
-import { FunctionNode, Tag } from "./types";
+import { FunctionNode, Tag } from './types';
 import { logger } from './utils';
 
 // const resultFile = ts.createSourceFile("someFileName.ts", readFileSync(file).toString(), ts.ScriptTarget.Latest, /*setParentNodes*/ false, ts.ScriptKind.TS);
@@ -22,7 +22,7 @@ class AutoJest {
     this.typeChecker = program.getTypeChecker();
     this.sourceFile = program.getSourceFile(filePath);
     this.testFile = new CreateFile(options);
-    this.exportList = []
+    this.exportList = [];
     this.init();
   }
 
@@ -63,7 +63,7 @@ class AutoJest {
     // } else {
     //   console.log(`import { ${names.join(" ")} } from ${moduleSpecifier.text}`);
     // }
-    
+
     this.testFile.createImport({
       names,
       defaultImport,
@@ -135,7 +135,7 @@ class AutoJest {
         body: initializer.body as ts.Block,
         tag: this.getJSDocReturnTag(node),
       });
-    } else if (ts.isFunctionDeclaration(node)){
+    } else if (ts.isFunctionDeclaration(node)) {
       const returnType = this.typeChecker.getTypeFromTypeNode(node.type);
       const parameters = this.parseParameters(node.parameters);
       this.exportList.push({
@@ -191,8 +191,7 @@ class AutoJest {
     const modifiers = node.modifiers;
     // isExportModifier
     if (modifiers?.[0]?.kind === 93) {
-      const declarations = node.declarationList
-        .declarations[0] as ts.VariableDeclaration;
+      const declarations = node.declarationList.declarations[0] as ts.VariableDeclaration;
       this.analyzeFunction(declarations);
     }
   }
@@ -231,10 +230,10 @@ class AutoJest {
           }
         }
       });
-    })
+    });
   }
 }
-export const main = (options: { filePath: string; }) => {
+export const main = (options: { filePath: string }) => {
   const fileAttributes = new FileAttributes({
     baseDir: process.env.PWD,
     filePath: options.filePath,
@@ -246,5 +245,5 @@ export const main = (options: { filePath: string; }) => {
   return false;
 };
 main({
-  filePath: './jest/readYml.ts',
+  filePath: './auto-jest/readYml.ts',
 });
