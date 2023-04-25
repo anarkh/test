@@ -8,11 +8,11 @@ const main = () => {
     blue.push(i);
   }
   let result = [];
-  while (result.length < 7) {
+  while (result.length < 6) {
     let i = 0;
     let hit = false;
     while (!hit) {
-      if (Math.random() > 0.95){
+      if (Math.random() > 0.95) {
         result = result.concat(red.splice(i - 1, 1));
         hit = true;
       }
@@ -26,7 +26,7 @@ const main = () => {
   let i = 0;
   let hit = false;
   while (!hit) {
-    if (Math.random() > 0.95){
+    if (Math.random() > 0.95) {
       result = result.concat(blue.splice(i, 1));
       hit = true;
     }

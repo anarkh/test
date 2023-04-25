@@ -1,7 +1,10 @@
 {
   "extends": "./tsconfig.base.json",
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "basics/snappy.js"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
