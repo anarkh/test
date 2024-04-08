@@ -9,7 +9,8 @@
     "readYml": "ts-node -r tsconfig-paths/register ./jest/readYml.ts",
     "test": "jest --coverage --forceExit --json --outputFile=coverage.json",
     "dw": "node ./utils/double-color-boll",
-    "test2": "ts-node ./faker/index.ts"
+    "test2": "ts-node ./faker/index.ts",
+    "koa": "ts-node ./koa/koaTest.js"
   },
   "dependencies": {
     "@vue/server-renderer": "^3.0.7",

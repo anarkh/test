@@ -1,0 +1,32 @@
+{
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"module": "Node16",
+		"target": "ES2022",
+		"lib": [
+			"ES2022",
+			"DOM"
+		],
+		"sourceMap": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"typeRoots": [
+			"./node_modules",
+			"./node_modules/@types"
+		],
+		"declaration": true,
+		"strict": false,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"allowJs": true
+		/* Additional Checks */
+		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
+	},
+	"include": [
+		"src/**/*"
+	]
+}
