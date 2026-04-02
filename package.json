@@ -4,11 +4,13 @@
     "scripts": {
         "decroator": "npx babel-node ./utils/decorator.js",
         "log-performance": "npx babel-node ./performance/test-log",
-        "esmodule": "npx babel-node ./function/testb.js"
+        "esmodule": "npx babel-node ./function/testb.js",
+        "test": "node ./test/koaTest.js"
     },
     "dependencies": {
         "@vue/server-renderer": "^3.0.7",
         "axios": "^0.21.1",
+        "dotenv": "^17.2.3",
         "http-encoding": "^1.3.0",
         "http-proxy": "^1.18.1",
         "koa": "^2.13.1",
